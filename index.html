@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>F1 BETS — Saison 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #E8002D;
+    --gold: #F5A623;
+    --carbon: #111112;
+    --surface: #1a1a1a;
+    --surface2: #222222;
+    --surface3: #2e2e2e;
+    --border: rgba(255,255,255,0.08);
+    --text: #f0f0f0;
+    --muted: #888888;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Rajdhani', sans-serif; background: var(--carbon); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+
+  #loading-screen {
+    position: fixed; inset: 0; z-index: 9999;
+    background: var(--carbon);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.5rem;
+    transition: opacity .4s;
+  }
+  #loading-screen.hidden { opacity: 0; pointer-events: none; }
+  .loading-logo { font-family: 'Orbitron', monospace; font-size: 2rem; font-weight: 900; color: white; }
+  .loading-logo span { color: var(--red); }
+  .loading-bar { width: 200px; height: 3px; background: var(--surface3); border-radius: 2px; overflow: hidden; }
+  .loading-bar-fill { height: 100%; background: var(--red); animation: loadFill 1.2s ease forwards; }
+  @keyframes loadFill { from{width:0} to{width:100%} }
+  .loading-text { font-family: 'Share Tech Mono', monospace; font-size: .75rem; color: var(--muted); letter-spacing: .2em; }
+
+  #sync-indicator {
+    position: fixed; bottom: 1rem; left: 1rem; z-index: 500;
+    display: flex; align-items: center; gap: .5rem;
+    font-family: 'Share Tech Mono', monospace; font-size: .7rem; color: var(--muted);
+    background: var(--surface2); border: 1px solid var(--border);
+    padding: .4rem .8rem; border-radius: 20px;
+    opacity: 0; transition: opacity .3s;
+  }
+  #sync-indicator.visible { opacity: 1; }
+  .sync-dot { width: 6px; height: 6px; border-radius: 50%; background: #00D450; }
+  .sync-dot.syncing { background: var(--gold); animation: blink .8s infinite; }
+  .sync-dot.error { background: var(--red); }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+  header { position: sticky; top:0; z-index:100; background: rgba(17,17,18,0.95); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 64px; }
+  .logo { font-family: 'Orbitron', monospace; font-weight: 900; font-size: 1.4rem; letter-spacing: 0.15em; color: white; display: flex; align-items: center; gap: .6rem; }
+  .logo span { color: var(--red); }
+  .logo-flag { width: 28px; height: 18px; background: repeating-linear-gradient(90deg, #fff 0 4px, #000 4px 8px); border-radius: 2px; }
+  nav { display:flex; gap: .25rem; }
+  nav button { font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: .85rem; letter-spacing: .08em; text-transform: uppercase; padding: .5rem 1.1rem; background: transparent; border: none; color: var(--muted); cursor: pointer; border-radius: 6px; transition: all .2s; }
+  nav button.active, nav button:hover { color: white; background: var(--surface3); }
+  nav button.active { color: var(--red); }
+  .user-badge { display: flex; align-items: center; gap: .5rem; }
+  .user-badge .avatar { width: 32px; height: 32px; border-radius: 50%; background: #444; display: flex; align-items: center; justify-content: center; font-size: .75rem; font-weight: 700; color: white; cursor: pointer; transition: all .2s; }
+  .user-badge .avatar:hover { transform: scale(1.1); }
+  .points-badge { font-family: 'Share Tech Mono', monospace; font-size: .75rem; background: var(--surface3); border: 1px solid var(--border); padding: .3rem .7rem; border-radius: 20px; color: var(--gold); }
+
+  .page { display:none; padding: 2rem; max-width: 1300px; margin: 0 auto; position:relative; z-index:1; }
+  .page.active { display: block; }
+
+  .hero { text-align: center; padding: 4rem 2rem 3rem; position: relative; }
+  .hero::before { content:''; position:absolute; top:-200px; left:50%; transform:translateX(-50%); width:800px; height:400px; background: radial-gradient(ellipse, rgba(232,0,45,.1) 0%, transparent 70%); pointer-events:none; }
+  .hero-eyebrow { font-family: 'Share Tech Mono', monospace; font-size: .75rem; letter-spacing: .3em; color: var(--red); text-transform: uppercase; margin-bottom: 1rem; }
+  .hero h1 { font-family: 'Orbitron', monospace; font-size: clamp(2.5rem, 6vw, 5rem); font-weight: 900; line-height: 1; letter-spacing: -.02em; margin-bottom: 1rem; }
+  .hero h1 em { color: var(--red); font-style:normal; }
+  .hero p { font-size: 1.15rem; color: var(--muted); max-width: 500px; margin: 0 auto 2.5rem; line-height: 1.6; }
+  .cta-group { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+
+  .btn-primary { font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: .95rem; letter-spacing: .1em; text-transform: uppercase; padding: .85rem 2rem; background: var(--red); border: none; border-radius: 8px; color: white; cursor: pointer; transition: all .2s; position:relative; overflow:hidden; }
+  .btn-primary::after { content:''; position:absolute; inset:0; background: linear-gradient(90deg, transparent, rgba(255,255,255,.15), transparent); transform: translateX(-100%); transition: transform .4s; }
+  .btn-primary:hover::after { transform: translateX(100%); }
+  .btn-primary:hover { background: #FF0033; transform: translateY(-2px); box-shadow: 0 8px 30px rgba(232,0,45,.3); }
+  .btn-secondary { font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: .95rem; letter-spacing: .08em; text-transform: uppercase; padding: .85rem 2rem; background: transparent; border: 1px solid var(--border); border-radius: 8px; color: var(--text); cursor: pointer; transition: all .2s; }
+  .btn-secondary:hover { border-color: rgba(255,255,255,.3); background: var(--surface2); }
+
+  .next-race-strip { background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--red); border-radius: 12px; padding: 1.5rem 2rem; display: flex; align-items: center; justify-content: space-between; gap: 2rem; flex-wrap: wrap; margin-bottom: 3rem; }
+  .nrs-label { font-family: 'Share Tech Mono', monospace; font-size: .7rem; letter-spacing: .2em; color: var(--red); text-transform: uppercase; margin-bottom: .3rem; }
+  .nrs-race { font-family: 'Orbitron', monospace; font-size: 1.3rem; font-weight: 700; }
+  .nrs-info { font-size: .95rem; color: var(--muted); margin-top: .2rem; }
+  .countdown { display: flex; gap: 1.5rem; }
+  .cd-unit { text-align: center; }
+  .cd-num { font-family: 'Orbitron', monospace; font-size: 2rem; font-weight: 700; line-height: 1; }
+  .cd-label { font-size: .65rem; letter-spacing: .15em; text-transform: uppercase; color: var(--muted); margin-top: .2rem; }
+
+  .section-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .section-title { font-family: 'Orbitron', monospace; font-size: 1rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+  .section-sub { font-size: .85rem; color: var(--muted); cursor: pointer; }
+
+  .races-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 3rem; }
+  .race-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; cursor: pointer; transition: all .25s; position: relative; overflow: hidden; }
+  .race-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background: var(--red); transform: scaleX(0); transform-origin: left; transition: transform .3s; }
+  .race-card:hover { border-color: rgba(232,0,45,.3); transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,.4); }
+  .race-card:hover::before { transform: scaleX(1); }
+  .race-card.has-bet::before { transform: scaleX(1); background: var(--gold); }
+  .race-card.has-bet { border-color: rgba(245,166,35,.2); }
+  .rc-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: .8rem; }
+  .rc-round { font-family: 'Share Tech Mono', monospace; font-size: .7rem; color: var(--muted); }
+  .rc-status { font-size: .65rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; padding: .2rem .6rem; border-radius: 20px; }
+  .rc-status.open { background: rgba(0,212,80,.15); color: #00D450; border: 1px solid rgba(0,212,80,.2); }
+  .rc-status.results { background: rgba(245,166,35,.1); color: var(--gold); border: 1px solid rgba(245,166,35,.2); }
+  .rc-name { font-family: 'Orbitron', monospace; font-size: 1rem; font-weight: 700; margin-bottom: .3rem; }
+  .rc-circuit { font-size: .9rem; color: var(--muted); }
+  .rc-date { font-family: 'Share Tech Mono', monospace; font-size: .75rem; color: var(--muted); margin-top: .8rem; }
+  .rc-bets-info { margin-top: .8rem; font-size: .8rem; color: var(--muted); display: flex; align-items: center; gap: .4rem; }
+  .rc-bets-info .dot { width:6px; height:6px; border-radius:50%; background: var(--gold); flex-shrink:0; }
+  .bets-preview { margin-top: .75rem; padding-top: .75rem; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: .3rem; }
+  .bets-preview-row { display: flex; justify-content: space-between; font-size: .78rem; }
+  .bets-preview-name { color: var(--muted); }
+  .bets-preview-pick { color: var(--text); font-weight: 600; font-family: 'Share Tech Mono', monospace; font-size: .72rem; }
+
+  .leaderboard { margin-bottom: 3rem; }
+  .lb-row { display: grid; grid-template-columns: 40px 1fr auto; gap: 1rem; align-items: center; padding: 1rem 1.25rem; border-radius: 10px; margin-bottom: .5rem; background: var(--surface2); border: 1px solid var(--border); transition: all .2s; cursor:pointer; }
+  .lb-row:hover { border-color: rgba(255,255,255,.15); background: var(--surface3); }
+  .lb-row.rank-1 { border-color: rgba(245,166,35,.2); }
+  .lb-rank { font-family: 'Orbitron', monospace; font-size: 1rem; font-weight: 700; color: var(--muted); text-align: center; }
+  .lb-rank.r1 { color: var(--gold); } .lb-rank.r2 { color: #C0C0C0; } .lb-rank.r3 { color: #CD7F32; }
+  .lb-name { font-weight: 600; font-size: 1rem; }
+  .lb-points { font-family: 'Orbitron', monospace; font-weight: 700; font-size: 1.1rem; color: var(--gold); text-align: right; }
+
+  .modal-overlay { display:none; position:fixed; inset:0; z-index:200; background: rgba(0,0,0,.8); backdrop-filter: blur(8px); align-items: center; justify-content: center; padding: 1rem; }
+  .modal-overlay.open { display:flex; }
+  .modal { background: var(--surface); border: 1px solid rgba(255,255,255,.1); border-radius: 16px; padding: 2rem; width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; animation: slideUp .3s ease; }
+  @keyframes slideUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+  .modal-header { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom: 1.5rem; }
+  .modal-title { font-family: 'Orbitron', monospace; font-size: 1.1rem; font-weight:700; }
+  .modal-sub { font-size: .85rem; color: var(--muted); margin-top: .3rem; }
+  .modal-close { background: var(--surface3); border: none; color: var(--muted); width: 32px; height: 32px; border-radius: 8px; cursor: pointer; font-size: 1.1rem; transition: all .2s; flex-shrink:0; }
+  .modal-close:hover { color: white; background: var(--red); }
+
+  .bet-section { margin-bottom: 1.5rem; }
+  .bet-section-title { font-family: 'Share Tech Mono', monospace; font-size: .7rem; letter-spacing: .2em; text-transform: uppercase; color: var(--red); margin-bottom: .75rem; }
+  .podium-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: .75rem; }
+  .podium-slot { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 1rem .75rem; text-align: center; }
+  .podium-pos { font-family: 'Orbitron', monospace; font-size: 1.5rem; font-weight: 900; margin-bottom: .5rem; }
+  .podium-pos.p1 { color: var(--gold); } .podium-pos.p2 { color: #C0C0C0; } .podium-pos.p3 { color: #CD7F32; }
+  .podium-slot select { width:100%; background: var(--surface3); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: .85rem; font-weight: 600; padding: .4rem .5rem; outline: none; cursor: pointer; appearance: none; text-align: center; }
+  .podium-slot select:focus { border-color: var(--red); }
+  .extra-bets { display:grid; gap:.75rem; }
+  .extra-bet-row { display:flex; align-items:center; justify-content:space-between; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: .9rem 1rem; }
+  .extra-bet-label { font-weight: 600; font-size: .95rem; }
+  .extra-bet-sub { font-size: .8rem; color: var(--muted); margin-top: .1rem; }
+  .extra-bet-row select { background: var(--surface3); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: .85rem; font-weight: 600; padding: .4rem .75rem; outline: none; cursor: pointer; min-width: 130px; }
+  .extra-bet-row select:focus { border-color: var(--red); }
+  .modal-footer { display:flex; gap:.75rem; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+  .modal-footer .btn-primary { flex:1; }
+
+  .others-bets-section { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+  .others-bets-title { font-family: 'Share Tech Mono', monospace; font-size: .7rem; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); margin-bottom: .75rem; }
+  .other-bet-row { display: flex; align-items: center; justify-content: space-between; padding: .55rem 0; border-bottom: 1px solid rgba(255,255,255,.04); font-size: .88rem; }
+  .other-bet-row:last-child { border-bottom: none; }
+  .oba-name { font-weight: 600; min-width: 80px; }
+  .oba-pred { color: var(--muted); font-family: 'Share Tech Mono', monospace; font-size: .75rem; }
+
+  .results-race-selector { display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom: 2rem; }
+  .rrs-btn { font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; padding: .5rem 1rem; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; color: var(--muted); cursor: pointer; transition: all .2s; }
+  .rrs-btn.active, .rrs-btn:hover { color: white; border-color: var(--red); background: rgba(232,0,45,.1); }
+  .results-table { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .rt-header, .rt-row { display:grid; grid-template-columns: 40px 1fr 1fr 1fr auto; gap: 1rem; padding: .9rem 1.25rem; align-items: center; }
+  .rt-header { font-family: 'Share Tech Mono', monospace; font-size: .7rem; letter-spacing: .15em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--border); }
+  .rt-row { border-bottom: 1px solid rgba(255,255,255,.04); transition: background .2s; }
+  .rt-row:last-child { border-bottom: none; }
+  .rt-row:hover { background: var(--surface3); }
+  .rt-rank { font-family: 'Share Tech Mono'; text-align:center; color: var(--muted); }
+  .rt-user { font-weight:600; }
+  .rt-prediction { font-size:.85rem; color: var(--muted); }
+  .rt-pts { font-family: 'Orbitron'; font-weight:700; color: var(--gold); text-align:right; }
+  .correct { color: #00D450; } .wrong { color: #ff6666; }
+
+  .stats-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem; margin-bottom: 3rem; }
+  .stat-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; text-align:center; }
+  .stat-num { font-family: 'Orbitron', monospace; font-size: 2rem; font-weight: 700; color: white; line-height:1; }
+  .stat-label { font-size: .8rem; color: var(--muted); margin-top: .4rem; }
+
+  .profile-header { display: flex; align-items: center; gap: 2rem; background: var(--surface2); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 2rem; flex-wrap: wrap; }
+  .profile-avatar { width: 80px; height: 80px; border-radius: 50%; background: #444; display: flex; align-items: center; justify-content: center; font-family: 'Orbitron', monospace; font-size: 1.8rem; font-weight: 700; color: white; flex-shrink:0; }
+  .profile-info h2 { font-family: 'Orbitron', monospace; font-size: 1.4rem; font-weight:700; }
+  .profile-info p { color: var(--muted); margin-top: .3rem; }
+  .profile-stats { display:flex; gap: 2rem; margin-top: 1rem; flex-wrap: wrap; }
+  .ps-num { font-family: 'Orbitron'; font-size: 1.3rem; font-weight:700; color: var(--gold); }
+  .ps-lbl { font-size: .75rem; color: var(--muted); text-transform:uppercase; letter-spacing:.1em; }
+  .my-bets-list { display:grid; gap:.75rem; }
+  .mb-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.25rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:.5rem; }
+  .mb-race { font-weight:700; }
+  .mb-pred { font-size:.85rem; color: var(--muted); }
+  .mb-status { font-size:.75rem; font-weight:600; letter-spacing:.1em; text-transform:uppercase; padding:.25rem .65rem; border-radius:20px; }
+  .mb-status.pending { background:rgba(255,255,255,.05); color: var(--muted); border:1px solid var(--border); }
+  .mb-status.scored { background:rgba(245,166,35,.1); color:var(--gold); border:1px solid rgba(245,166,35,.2); }
+  .mb-pts { font-family:'Orbitron'; font-weight:700; color:var(--gold); }
+
+  .user-select-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:.75rem; margin-bottom:1.5rem; }
+  .user-chip { background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:.9rem .75rem; text-align:center; cursor:pointer; transition:all .2s; }
+  .user-chip:hover { border-color:var(--red); background:rgba(232,0,45,.05); }
+  .user-chip.selected { border-color:var(--red); background:rgba(232,0,45,.12); }
+  .uc-avatar { width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Orbitron'; font-weight:700; font-size:1rem; color:white; background:#444; margin:0 auto .6rem; }
+  .uc-name { font-weight:600; font-size:.9rem; }
+  .input-label { font-size:.8rem; color:var(--muted); margin-bottom:.4rem; text-transform:uppercase; letter-spacing:.1em; font-family:'Share Tech Mono'; }
+  input[type="text"] { width:100%; background:var(--surface3); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:'Rajdhani'; font-size:1rem; padding:.75rem 1rem; outline:none; }
+  input[type="text"]:focus { border-color:var(--red); }
+
+  #toast { position:fixed; bottom:2rem; right:2rem; z-index:999; background:var(--surface3); border:1px solid var(--border); border-left:3px solid var(--red); border-radius:10px; padding:1rem 1.5rem; font-weight:600; font-size:.9rem; transform:translateY(100px); opacity:0; transition:all .3s; max-width:300px; pointer-events:none; }
+  #toast.show { transform:translateY(0); opacity:1; }
+  #toast.success { border-left-color: #00D450; }
+
+  ::-webkit-scrollbar { width:6px; }
+  ::-webkit-scrollbar-track { background: var(--carbon); }
+  ::-webkit-scrollbar-thumb { background: var(--surface3); border-radius:3px; }
+
+  @media(max-width:600px) {
+    .podium-grid { grid-template-columns:1fr; }
+    .rt-header, .rt-row { grid-template-columns:30px 1fr auto; }
+    .rt-prediction { display:none; }
+    nav button { padding:.4rem .7rem; font-size:.75rem; }
+    .cd-num { font-size:1.4rem; }
+    .hero h1 { font-size:2rem; }
+    header { padding: 0 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<div id="loading-screen">
+  <div class="loading-logo">F1<span>BETS</span></div>
+  <div class="loading-bar"><div class="loading-bar-fill"></div></div>
+  <div class="loading-text">Connexion Firebase…</div>
+</div>
+
+<div id="sync-indicator">
+  <div class="sync-dot" id="syncDot"></div>
+  <span id="syncText">Synchronisé</span>
+</div>
+
+<header>
+  <div class="logo"><div class="logo-flag"></div>F1<span>BETS</span></div>
+  <nav>
+    <button class="active" onclick="showPage('home')">Accueil</button>
+    <button onclick="showPage('races')">Courses</button>
+    <button onclick="showPage('leaderboard')">Classement</button>
+    <button onclick="showPage('profile')">Mon Profil</button>
+  </nav>
+  <div class="user-badge">
+    <div class="points-badge" id="headerPoints">0 PTS</div>
+    <div class="avatar" id="headerAvatar" onclick="openUserModal()">?</div>
+  </div>
+</header>
+
+<div id="toast"></div>
+
+<!-- HOME -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <div class="hero-eyebrow">🏁 Saison F1 2026 — Paris internes</div>
+    <h1>Pronostiquez.<br><em>Affrontez-vous.</em><br>Gagnez.</h1>
+    <p>Pariez sur les podiums et les bonus de chaque Grand Prix avec vos collègues.</p>
+    <div class="cta-group">
+      <button class="btn-primary" onclick="showPage('races')">Voir les courses</button>
+      <button class="btn-secondary" onclick="showPage('leaderboard')">Classement général</button>
+    </div>
+  </div>
+  <div style="max-width:1300px;margin:0 auto;">
+    <div class="next-race-strip">
+      <div>
+        <div class="nrs-label">Prochain Grand Prix</div>
+        <div class="nrs-race" id="nrsName">—</div>
+        <div class="nrs-info" id="nrsInfo">—</div>
+      </div>
+      <div class="countdown">
+        <div class="cd-unit"><div class="cd-num" id="cd-d">--</div><div class="cd-label">Jours</div></div>
+        <div class="cd-unit"><div class="cd-num" id="cd-h">--</div><div class="cd-label">Heures</div></div>
+        <div class="cd-unit"><div class="cd-num" id="cd-m">--</div><div class="cd-label">Min</div></div>
+        <div class="cd-unit"><div class="cd-num" id="cd-s">--</div><div class="cd-label">Sec</div></div>
+      </div>
+      <button class="btn-primary" onclick="showPage('races')">Parier →</button>
+    </div>
+    <div class="stats-row" id="statsRow"></div>
+    <div class="section-header">
+      <div class="section-title">🏆 Top Parieurs</div>
+      <div class="section-sub" onclick="showPage('leaderboard')">Voir tout →</div>
+    </div>
+    <div class="leaderboard" id="homeLb"></div>
+  </div>
+</div>
+
+<!-- RACES -->
+<div class="page" id="page-races">
+  <div class="section-header">
+    <div><div class="section-title">Calendrier 2026</div><div class="section-sub">Clic droit sur une course pour saisir les résultats</div></div>
+  </div>
+  <div class="races-grid" id="racesGrid"></div>
+</div>
+
+<!-- LEADERBOARD -->
+<div class="page" id="page-leaderboard">
+  <div class="section-header">
+    <div class="section-title">🏆 Classement Général</div>
+    <div class="section-sub" id="lbSub">Saison 2026</div>
+  </div>
+  <div class="leaderboard" id="fullLeaderboard"></div>
+  <div style="height:2rem"></div>
+  <div class="section-header"><div class="section-title">Résultats par Course</div></div>
+  <div class="results-race-selector" id="resultsSelector"></div>
+  <div class="results-table" id="resultsTable">
+    <div style="padding:2rem;text-align:center;color:var(--muted)">Sélectionnez une course terminée.</div>
+  </div>
+</div>
+
+<!-- PROFILE -->
+<div class="page" id="page-profile">
+  <div class="profile-header">
+    <div class="profile-avatar" id="profileAvatar">?</div>
+    <div class="profile-info">
+      <h2 id="profileName">Sélectionnez un profil</h2>
+      <p id="profileRank">—</p>
+      <div class="profile-stats" id="profileStats"></div>
+    </div>
+  </div>
+  <div class="section-header">
+    <div class="section-title">Mes Paris</div>
+    <div class="section-sub" id="profileBetCount"></div>
+  </div>
+  <div class="my-bets-list" id="myBetsList"></div>
+</div>
+
+<!-- MODAL: BET -->
+<div class="modal-overlay" id="betModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div><div class="modal-title" id="modalRaceName">Grand Prix</div><div class="modal-sub" id="modalRaceSub">—</div></div>
+      <button class="modal-close" onclick="closeBetModal()">✕</button>
+    </div>
+    <div class="bet-section">
+      <div class="bet-section-title">🥇 Podium — Top 3</div>
+      <div class="podium-grid">
+        <div class="podium-slot"><div class="podium-pos p1">1</div><select id="bet-p1"></select></div>
+        <div class="podium-slot"><div class="podium-pos p2">2</div><select id="bet-p2"></select></div>
+        <div class="podium-slot"><div class="podium-pos p3">3</div><select id="bet-p3"></select></div>
+      </div>
+    </div>
+    <div class="bet-section">
+      <div class="bet-section-title">⚡ Paris Bonus</div>
+      <div class="extra-bets">
+        <div class="extra-bet-row">
+          <div><div class="extra-bet-label">Pole Position</div><div class="extra-bet-sub">+3 pts si correct</div></div>
+          <select id="bet-pole"></select>
+        </div>
+        <div class="extra-bet-row">
+          <div><div class="extra-bet-label">Meilleur Tour</div><div class="extra-bet-sub">+2 pts si correct</div></div>
+          <select id="bet-fl"></select>
+        </div>
+      </div>
+    </div>
+    <div class="others-bets-section" id="othersBetsSection" style="display:none">
+      <div class="others-bets-title">👥 Paris de vos collègues</div>
+      <div id="othersBetsList"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeBetModal()">Annuler</button>
+      <button class="btn-primary" onclick="saveBet()">Confirmer →</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: RESULT -->
+<div class="modal-overlay" id="resultModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div><div class="modal-title">Saisir les Résultats</div><div class="modal-sub" id="resultModalSub">—</div></div>
+      <button class="modal-close" onclick="closeResultModal()">✕</button>
+    </div>
+    <div class="bet-section">
+      <div class="bet-section-title">Résultat officiel</div>
+      <div class="podium-grid">
+        <div class="podium-slot"><div class="podium-pos p1">1</div><select id="res-p1"></select></div>
+        <div class="podium-slot"><div class="podium-pos p2">2</div><select id="res-p2"></select></div>
+        <div class="podium-slot"><div class="podium-pos p3">3</div><select id="res-p3"></select></div>
+      </div>
+    </div>
+    <div class="bet-section">
+      <div class="bet-section-title">Bonus</div>
+      <div class="extra-bets">
+        <div class="extra-bet-row"><div><div class="extra-bet-label">Pole Position</div></div><select id="res-pole"></select></div>
+        <div class="extra-bet-row"><div><div class="extra-bet-label">Meilleur Tour</div></div><select id="res-fl"></select></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeResultModal()">Annuler</button>
+      <button class="btn-primary" onclick="saveResult()">Valider →</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: USER -->
+<div class="modal-overlay" id="userModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div><div class="modal-title">Qui parie ?</div><div class="modal-sub">Sélectionnez ou créez votre profil</div></div>
+      <button class="modal-close" onclick="closeUserModal()">✕</button>
+    </div>
+    <div class="user-select-grid" id="userGrid"></div>
+    <div style="margin-top:1rem">
+      <div class="input-label">Nouveau joueur</div>
+      <div style="display:flex;gap:.75rem;margin-top:.5rem">
+        <input type="text" id="newUserInput" placeholder="Prénom ou pseudo…" onkeydown="if(event.key==='Enter')addUser()">
+        <button class="btn-primary" onclick="addUser()" style="flex-shrink:0;padding:.75rem 1.25rem">Ajouter</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDWrDwrv2k0dgnfz45VCGpJWbN8LZGVqms",
+  authDomain: "mpp-f1.firebaseapp.com",
+  projectId: "mpp-f1",
+  storageBucket: "mpp-f1.firebasestorage.app",
+  messagingSenderId: "442568802836",
+  appId: "1:442568802836:web:ee72e05ee301670e669d01"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// ===== STATIC DATA =====
+const DRIVERS = [
+  {id:'VER',name:'Verstappen'},{id:'NOR',name:'Norris'},{id:'LEC',name:'Leclerc'},
+  {id:'HAM',name:'Hamilton'},{id:'RUS',name:'Russell'},{id:'ANT',name:'Antonelli'},
+  {id:'PIA',name:'Piastri'},{id:'ALO',name:'Alonso'},{id:'STR',name:'Stroll'},
+  {id:'SAI',name:'Sainz'},{id:'COL',name:'Colapinto'},{id:'TSU',name:'Tsunoda'},
+  {id:'LAW',name:'Lawson'},{id:'HAD',name:'Hadjar'},{id:'HUL',name:'Hulkenberg'},
+  {id:'BOR',name:'Bortoleto'},{id:'GAS',name:'Gasly'},{id:'DOO',name:'Doohan'},
+  {id:'OCO',name:'Ocon'},{id:'MAG',name:'Magnussen'},
+];
+const RACES = [
+  {id:'r01',round:1,name:'Australie',circuit:'Albert Park',date:'2026-03-15'},
+  {id:'r02',round:2,name:'Chine',circuit:'Shanghai',date:'2026-03-22'},
+  {id:'r03',round:3,name:'Japon',circuit:'Suzuka',date:'2026-04-05'},
+  {id:'r04',round:4,name:'Bahreïn',circuit:'Bahrain International',date:'2026-04-19'},
+  {id:'r05',round:5,name:'Arabie Saoudite',circuit:'Jeddah Corniche',date:'2026-04-26'},
+  {id:'r06',round:6,name:'Miami',circuit:'Miami International',date:'2026-05-03'},
+  {id:'r07',round:7,name:'Émilie-Romagne',circuit:'Imola',date:'2026-05-17'},
+  {id:'r08',round:8,name:'Monaco',circuit:'Circuit de Monaco',date:'2026-05-24'},
+  {id:'r09',round:9,name:'Espagne',circuit:'Circuit de Barcelone',date:'2026-06-01'},
+  {id:'r10',round:10,name:'Canada',circuit:'Gilles Villeneuve',date:'2026-06-14'},
+  {id:'r11',round:11,name:'Autriche',circuit:'Red Bull Ring',date:'2026-06-28'},
+  {id:'r12',round:12,name:'Grande-Bretagne',circuit:'Silverstone',date:'2026-07-05'},
+  {id:'r13',round:13,name:'Belgique',circuit:'Spa-Francorchamps',date:'2026-07-26'},
+  {id:'r14',round:14,name:'Hongrie',circuit:'Hungaroring',date:'2026-08-02'},
+  {id:'r15',round:15,name:'Pays-Bas',circuit:'Zandvoort',date:'2026-08-30'},
+  {id:'r16',round:16,name:'Italie',circuit:'Monza',date:'2026-09-06'},
+  {id:'r17',round:17,name:'Azerbaïdjan',circuit:'Baku City Circuit',date:'2026-09-20'},
+  {id:'r18',round:18,name:'Singapour',circuit:'Marina Bay',date:'2026-10-04'},
+  {id:'r19',round:19,name:'États-Unis',circuit:'Circuit of the Americas',date:'2026-10-18'},
+  {id:'r20',round:20,name:'Mexique',circuit:'Autodromo Hermanos Rodriguez',date:'2026-10-25'},
+  {id:'r21',round:21,name:'Brésil',circuit:'Interlagos',date:'2026-11-08'},
+  {id:'r22',round:22,name:'Las Vegas',circuit:'Las Vegas Strip',date:'2026-11-21'},
+  {id:'r23',round:23,name:'Qatar',circuit:'Losail International',date:'2026-11-29'},
+  {id:'r24',round:24,name:'Abu Dhabi',circuit:'Yas Marina',date:'2026-12-06'},
+];
+
+// ===== STATE =====
+let state = { users:[], bets:{}, results:{}, currentUser: localStorage.getItem('f1bets_uid') || null };
+let currentRaceId = null;
+let cdTimer = null;
+
+// ===== SYNC UI =====
+const syncDot = document.getElementById('syncDot');
+const syncText = document.getElementById('syncText');
+const syncInd = document.getElementById('sync-indicator');
+function setSyncing(){ syncDot.className='sync-dot syncing'; syncText.textContent='Sync…'; syncInd.classList.add('visible'); }
+function setSynced(){ syncDot.className='sync-dot'; syncText.textContent='Synchronisé'; setTimeout(()=>syncInd.classList.remove('visible'),2000); }
+function setSyncError(){ syncDot.className='sync-dot error'; syncText.textContent='Hors ligne'; syncInd.classList.add('visible'); }
+
+// ===== FIRESTORE LISTENERS =====
+onSnapshot(collection(db,'users'), snap => {
+  state.users = snap.docs.map(d=>({id:d.id,...d.data()}));
+  refresh(); setSynced();
+}, ()=>setSyncError());
+
+onSnapshot(collection(db,'bets'), snap => {
+  state.bets = {};
+  snap.docs.forEach(d => {
+    const {userId,raceId,...rest} = d.data();
+    if(!state.bets[userId]) state.bets[userId]={};
+    state.bets[userId][raceId] = rest;
+  });
+  refresh(); setSynced();
+}, ()=>setSyncError());
+
+onSnapshot(collection(db,'results'), snap => {
+  state.results = {};
+  snap.docs.forEach(d=>{ state.results[d.id]=d.data(); });
+  refresh(); setSynced();
+}, ()=>setSyncError());
+
+function refresh(){
+  const p = document.querySelector('.page.active')?.id?.replace('page-','');
+  if(p==='home') renderHome();
+  if(p==='races') renderRaces();
+  if(p==='leaderboard') renderLeaderboard();
+  if(p==='profile') renderProfile();
+  updateHeader();
+}
+
+// ===== POINTS =====
+function calcPts(bet, res){
+  if(!bet||!res) return 0;
+  let p=0;
+  if(bet.p1&&bet.p1===res.p1) p+=5;
+  if(bet.p2&&bet.p2===res.p2) p+=4;
+  if(bet.p3&&bet.p3===res.p3) p+=3;
+  const pod=[res.p1,res.p2,res.p3].filter(Boolean);
+  if(bet.p1&&bet.p1!==res.p1&&pod.includes(bet.p1)) p+=1;
+  if(bet.p2&&bet.p2!==res.p2&&pod.includes(bet.p2)) p+=1;
+  if(bet.p3&&bet.p3!==res.p3&&pod.includes(bet.p3)) p+=1;
+  if(bet.pole&&bet.pole===res.pole) p+=3;
+  if(bet.fl&&bet.fl===res.fl) p+=2;
+  return p;
+}
+function totalPts(uid){ return Object.entries(state.bets[uid]||{}).reduce((s,[rid,b])=>s+(state.results[rid]?calcPts(b,state.results[rid]):0),0); }
+function leaderboard(){ return state.users.map(u=>({...u,pts:totalPts(u.id),bets:Object.keys(state.bets[u.id]||{}).length})).sort((a,b)=>b.pts-a.pts); }
+
+// ===== NAV =====
+window.showPage = id => {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.querySelectorAll('nav button').forEach((b,i)=>{
+    b.classList.toggle('active',['home','races','leaderboard','profile'][i]===id);
+  });
+  if(id==='home') renderHome();
+  if(id==='races') renderRaces();
+  if(id==='leaderboard') renderLeaderboard();
+  if(id==='profile') renderProfile();
+};
+
+// ===== HOME =====
+function renderHome(){
+  const now=new Date();
+  const next=RACES.filter(r=>new Date(r.date)>now).sort((a,b)=>new Date(a.date)-new Date(b.date))[0];
+  if(next){
+    document.getElementById('nrsName').textContent='Grand Prix de '+next.name;
+    document.getElementById('nrsInfo').textContent=next.circuit;
+    if(cdTimer) clearInterval(cdTimer);
+    const tick=()=>{
+      const diff=new Date(next.date+'T14:00:00')-new Date();
+      if(diff<0) return;
+      const el=id=>document.getElementById(id);
+      el('cd-d').textContent=String(Math.floor(diff/86400000)).padStart(2,'0');
+      el('cd-h').textContent=String(Math.floor(diff%86400000/3600000)).padStart(2,'0');
+      el('cd-m').textContent=String(Math.floor(diff%3600000/60000)).padStart(2,'0');
+      el('cd-s').textContent=String(Math.floor(diff%60000/1000)).padStart(2,'0');
+    };
+    tick(); cdTimer=setInterval(tick,1000);
+  }
+  const totalBets=Object.values(state.bets).reduce((s,ub)=>s+Object.keys(ub).length,0);
+  document.getElementById('statsRow').innerHTML=`
+    <div class="stat-card"><div class="stat-num">${state.users.length}</div><div class="stat-label">Parieurs</div></div>
+    <div class="stat-card"><div class="stat-num">${totalBets}</div><div class="stat-label">Paris déposés</div></div>
+    <div class="stat-card"><div class="stat-num">${Object.keys(state.results).length}</div><div class="stat-label">Courses terminées</div></div>
+    <div class="stat-card"><div class="stat-num">${RACES.length}</div><div class="stat-label">Grand Prix</div></div>`;
+  const top=leaderboard().slice(0,5);
+  document.getElementById('homeLb').innerHTML=top.length?top.map(lbRow).join(''):'<div style="text-align:center;padding:2rem;color:var(--muted)">Aucun parieur. <button class="btn-primary" style="margin-top:1rem" onclick="openUserModal()">Créer un profil</button></div>';
+}
+
+function lbRow(u,i){
+  const rc=i<3?['r1','r2','r3'][i]:'';
+  const rd=i<3?['🥇','🥈','🥉'][i]:`#${i+1}`;
+  return `<div class="lb-row rank-${i+1}" onclick="selectUser('${u.id}');showPage('profile')">
+    <div class="lb-rank ${rc}">${rd}</div>
+    <div><div class="lb-name">${u.name}</div><div style="font-size:.8rem;color:var(--muted)">${u.bets} paris</div></div>
+    <div class="lb-points">${u.pts} <span style="font-size:.7rem;color:var(--muted)">pts</span></div>
+  </div>`;
+}
+
+// ===== RACES =====
+function renderRaces(){
+  const uid=state.currentUser;
+  document.getElementById('racesGrid').innerHTML=RACES.map(r=>{
+    const hasBet=uid&&state.bets[uid]?.[r.id];
+    const hasRes=!!state.results[r.id];
+    const total=Object.values(state.bets).filter(ub=>ub[r.id]).length;
+    const others=state.users.filter(u=>u.id!==uid&&state.bets[u.id]?.[r.id]);
+    const preview=others.length?`<div class="bets-preview">${others.slice(0,3).map(u=>{
+      const b=state.bets[u.id][r.id];
+      return `<div class="bets-preview-row"><span class="bets-preview-name">${u.name}</span><span class="bets-preview-pick">${b.p1||'?'} · ${b.p2||'?'} · ${b.p3||'?'}</span></div>`;
+    }).join('')}${others.length>3?`<div style="font-size:.72rem;color:var(--muted);margin-top:.2rem">+${others.length-3} autres</div>`:''}</div>`:'';
+    return `<div class="race-card ${hasBet?'has-bet':''}" onclick="openBetModal('${r.id}')" oncontextmenu="event.preventDefault();openResultModalFor('${r.id}')">
+      <div class="rc-header">
+        <div class="rc-round">ROUND ${String(r.round).padStart(2,'0')}</div>
+        <div class="rc-status ${hasRes?'results':'open'}">${hasRes?'Résultats':'Ouvert'}</div>
+      </div>
+      <div class="rc-name">Grand Prix de ${r.name}</div>
+      <div class="rc-circuit">${r.circuit}</div>
+      <div class="rc-date">${fmtDate(r.date)}</div>
+      <div class="rc-bets-info">${hasBet?'<div class="dot"></div> Pari déposé':`${total} pari${total>1?'s':''} déposé${total>1?'s':''}`}</div>
+      ${preview}
+    </div>`;
+  }).join('');
+}
+
+// ===== LEADERBOARD =====
+function renderLeaderboard(){
+  const lb=leaderboard();
+  document.getElementById('lbSub').textContent=`${lb.length} parieurs — ${Object.keys(state.results).length} courses terminées`;
+  document.getElementById('fullLeaderboard').innerHTML=lb.length?lb.map(lbRow).join(''):'<div style="text-align:center;padding:2rem;color:var(--muted)">Aucun parieur.</div>';
+  const done=RACES.filter(r=>state.results[r.id]);
+  document.getElementById('resultsSelector').innerHTML=done.length
+    ?done.map(r=>`<button class="rrs-btn" onclick="showRaceResults('${r.id}',this)">GP ${r.name}</button>`).join('')
+    :'<div style="color:var(--muted);font-size:.9rem">Aucune course terminée.</div>';
+}
+
+window.showRaceResults=(raceId,btn)=>{
+  document.querySelectorAll('.rrs-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const res=state.results[raceId]; if(!res) return;
+  const rows=state.users.map(u=>{
+    const bet=(state.bets[u.id]||{})[raceId];
+    const pts=calcPts(bet,res);
+    const pred=bet?`${bet.p1||'?'} / ${bet.p2||'?'} / ${bet.p3||'?'}`:'—';
+    const match=bet?`<span class="${bet.p1===res.p1?'correct':'wrong'}">${bet.p1||'?'}</span> / <span class="${bet.p2===res.p2?'correct':'wrong'}">${bet.p2||'?'}</span> / <span class="${bet.p3===res.p3?'correct':'wrong'}">${bet.p3||'?'}</span>`:'—';
+    return {u,pts,pred,match};
+  }).sort((a,b)=>b.pts-a.pts);
+  document.getElementById('resultsTable').innerHTML=`
+    <div class="rt-header"><span>#</span><span>Joueur</span><span>Pronostic</span><span>Match</span><span>Pts</span></div>
+    ${rows.map((r,i)=>`<div class="rt-row"><span class="rt-rank">${i+1}</span><span class="rt-user">${r.u.name}</span><span class="rt-prediction">${r.pred}</span><span>${r.match}</span><span class="rt-pts">${r.pts}</span></div>`).join('')}
+    <div style="padding:1rem 1.25rem;border-top:1px solid var(--border);font-size:.8rem;color:var(--muted)">
+      Résultat : <strong style="color:white">${res.p1} / ${res.p2} / ${res.p3}</strong> &nbsp;• Pole: <strong style="color:white">${res.pole||'—'}</strong> &nbsp;• FL: <strong style="color:white">${res.fl||'—'}</strong>
+      <button onclick="openResultModalFor('${raceId}')" style="margin-left:1rem;background:var(--surface3);border:1px solid var(--border);color:var(--muted);padding:.3rem .8rem;border-radius:6px;cursor:pointer;font-family:Rajdhani;font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600">✏️ Modifier</button>
+    </div>`;
+};
+
+// ===== PROFILE =====
+function renderProfile(){
+  const uid=state.currentUser;
+  const user=state.users.find(u=>u.id===uid);
+  if(!user){
+    document.getElementById('profileAvatar').textContent='?';
+    document.getElementById('profileName').textContent='Aucun profil sélectionné';
+    document.getElementById('profileRank').textContent='Cliquez sur l\'avatar pour vous identifier';
+    document.getElementById('profileStats').innerHTML='';
+    document.getElementById('myBetsList').innerHTML='';
+    return;
+  }
+  const pts=totalPts(uid);
+  const bets=state.bets[uid]||{};
+  const cnt=Object.keys(bets).length;
+  const lb=leaderboard();
+  const rank=lb.findIndex(u=>u.id===uid)+1;
+  document.getElementById('profileAvatar').textContent=user.name[0].toUpperCase();
+  document.getElementById('profileName').textContent=user.name;
+  document.getElementById('profileRank').textContent=`Rang #${rank} au classement général`;
+  document.getElementById('profileStats').innerHTML=`
+    <div class="ps-item"><div class="ps-num">${pts}</div><div class="ps-lbl">Points</div></div>
+    <div class="ps-item"><div class="ps-num">${cnt}</div><div class="ps-lbl">Paris</div></div>
+    <div class="ps-item"><div class="ps-num">#${rank}</div><div class="ps-lbl">Classement</div></div>`;
+  document.getElementById('profileBetCount').textContent=`${cnt} paris`;
+  document.getElementById('myBetsList').innerHTML=Object.entries(bets).map(([rid,bet])=>{
+    const race=RACES.find(r=>r.id===rid); if(!race) return '';
+    const res=state.results[rid];
+    const p=res?calcPts(bet,res):null;
+    return `<div class="mb-card">
+      <div><div class="mb-race">GP ${race.name}</div><div class="mb-pred">${bet.p1||'?'} / ${bet.p2||'?'} / ${bet.p3||'?'}</div></div>
+      <div style="display:flex;align-items:center;gap:.75rem">
+        <div class="mb-status ${res?'scored':'pending'}">${res?'Scoré':'En attente'}</div>
+        ${p!==null?`<div class="mb-pts">${p} pts</div>`:''}
+      </div>
+    </div>`;
+  }).join('')||'<div style="color:var(--muted);padding:1rem">Aucun pari pour l\'instant.</div>';
+}
+
+function updateHeader(){
+  const uid=state.currentUser;
+  const user=state.users.find(u=>u.id===uid);
+  const av=document.getElementById('headerAvatar');
+  av.textContent=user?user.name[0].toUpperCase():'?';
+  document.getElementById('headerPoints').textContent=(user?totalPts(uid):0)+' PTS';
+}
+
+// ===== DRIVER SELECTS =====
+function fillSelects(...ids){
+  const opts=`<option value="">—</option>`+DRIVERS.map(d=>`<option value="${d.id}">${d.id} · ${d.name}</option>`).join('');
+  ids.forEach(id=>{ const el=document.getElementById(id); if(el) el.innerHTML=opts; });
+}
+
+// ===== BET MODAL =====
+window.openBetModal = raceId => {
+  currentRaceId=raceId;
+  const race=RACES.find(r=>r.id===raceId);
+  document.getElementById('modalRaceName').textContent='GP de '+race.name;
+  document.getElementById('modalRaceSub').textContent=race.circuit+' — '+fmtDate(race.date);
+  fillSelects('bet-p1','bet-p2','bet-p3','bet-pole','bet-fl');
+  const uid=state.currentUser;
+  const b=(state.bets[uid]||{})[raceId];
+  if(b) ['p1','p2','p3','pole','fl'].forEach(k=>{ const el=document.getElementById('bet-'+k); if(el&&b[k]) el.value=b[k]; });
+  // Others' bets
+  const others=state.users.filter(u=>u.id!==uid&&state.bets[u.id]?.[raceId]);
+  const sec=document.getElementById('othersBetsSection');
+  if(others.length){
+    sec.style.display='block';
+    document.getElementById('othersBetsList').innerHTML=others.map(u=>{
+      const ob=state.bets[u.id][raceId];
+      return `<div class="other-bet-row"><span class="oba-name">${u.name}</span><span class="oba-pred">${ob.p1||'?'} · ${ob.p2||'?'} · ${ob.p3||'?'} &nbsp;|&nbsp; Pole: ${ob.pole||'?'} · FL: ${ob.fl||'?'}</span></div>`;
+    }).join('');
+  } else sec.style.display='none';
+  document.getElementById('betModal').classList.add('open');
+};
+window.closeBetModal=()=>document.getElementById('betModal').classList.remove('open');
+
+window.saveBet=async()=>{
+  if(!state.currentUser){ toast('⚠️ Sélectionnez un profil !',false); closeBetModal(); openUserModal(); return; }
+  setSyncing();
+  try {
+    await setDoc(doc(db,'bets',`${state.currentUser}_${currentRaceId}`),{
+      userId:state.currentUser, raceId:currentRaceId,
+      p1:document.getElementById('bet-p1').value,
+      p2:document.getElementById('bet-p2').value,
+      p3:document.getElementById('bet-p3').value,
+      pole:document.getElementById('bet-pole').value,
+      fl:document.getElementById('bet-fl').value,
+    });
+    closeBetModal(); toast('✅ Pari enregistré !',true);
+  } catch(e){ toast('❌ Erreur de sauvegarde',false); setSyncError(); }
+};
+
+// ===== RESULT MODAL =====
+window.openResultModalFor=raceId=>{
+  currentRaceId=raceId;
+  document.getElementById('resultModalSub').textContent='GP de '+RACES.find(r=>r.id===raceId)?.name;
+  fillSelects('res-p1','res-p2','res-p3','res-pole','res-fl');
+  const ex=state.results[raceId];
+  if(ex) ['p1','p2','p3','pole','fl'].forEach(k=>{ const el=document.getElementById('res-'+k); if(el&&ex[k]) el.value=ex[k]; });
+  document.getElementById('resultModal').classList.add('open');
+};
+window.closeResultModal=()=>document.getElementById('resultModal').classList.remove('open');
+
+window.saveResult=async()=>{
+  setSyncing();
+  try {
+    await setDoc(doc(db,'results',currentRaceId),{
+      p1:document.getElementById('res-p1').value,
+      p2:document.getElementById('res-p2').value,
+      p3:document.getElementById('res-p3').value,
+      pole:document.getElementById('res-pole').value,
+      fl:document.getElementById('res-fl').value,
+    });
+    closeResultModal(); toast('🏁 Résultats enregistrés !',true);
+  } catch(e){ toast('❌ Erreur',false); setSyncError(); }
+};
+
+// ===== USER MODAL =====
+window.openUserModal=()=>{ renderUserGrid(); document.getElementById('userModal').classList.add('open'); };
+window.closeUserModal=()=>document.getElementById('userModal').classList.remove('open');
+
+function renderUserGrid(){
+  document.getElementById('userGrid').innerHTML=state.users.length
+    ?state.users.map(u=>`<div class="user-chip ${state.currentUser===u.id?'selected':''}" onclick="selectUser('${u.id}')">
+      <div class="uc-avatar">${u.name[0].toUpperCase()}</div>
+      <div class="uc-name">${u.name}</div>
+      <div style="font-size:.75rem;color:var(--muted);margin-top:.2rem">${totalPts(u.id)} pts</div>
+    </div>`).join('')
+    :'<div style="color:var(--muted);font-size:.9rem;grid-column:1/-1">Aucun joueur — créez le premier !</div>';
+}
+
+window.selectUser=id=>{
+  state.currentUser=id;
+  localStorage.setItem('f1bets_uid',id);
+  updateHeader(); closeUserModal();
+  toast(`👋 Bienvenue, ${state.users.find(u=>u.id===id)?.name} !`,true);
+  renderProfile();
+};
+
+window.addUser=async()=>{
+  const input=document.getElementById('newUserInput');
+  const name=input.value.trim(); if(!name) return;
+  const id='u_'+Date.now();
+  setSyncing();
+  try {
+    await setDoc(doc(db,'users',id),{name});
+    state.currentUser=id; localStorage.setItem('f1bets_uid',id);
+    input.value=''; updateHeader();
+    toast(`🎉 "${name}" ajouté !`,true);
+  } catch(e){ toast('❌ Erreur',false); setSyncError(); }
+};
+
+// ===== TOAST =====
+function toast(msg,ok=true){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='show'+(ok?' success':'');
+  setTimeout(()=>t.className='',3000);
+}
+
+// ===== HELPERS =====
+function fmtDate(d){ return new Date(d).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}); }
+
+// ===== INIT =====
+['betModal','resultModal','userModal'].forEach(id=>{
+  document.getElementById(id).addEventListener('click',e=>{ if(e.target.id===id) document.getElementById(id).classList.remove('open'); });
+});
+
+setTimeout(()=>{
+  document.getElementById('loading-screen').classList.add('hidden');
+  renderHome(); updateHeader();
+},1400);
+</script>
+</body>
+</html>
