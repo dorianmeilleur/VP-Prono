@@ -2422,6 +2422,7 @@ function renderSeasonBets(uid){
 function renderMyBets(){
   const uid = viewingProfileUserId || state.currentUser;
   if(!uid) return;
+  const isOwnProfile = uid === state.currentUser;
   const bets=state.bets[uid]||{};
   const tab = profileTab;
   const entries = Object.entries(bets).filter(([rid])=>{
@@ -2433,6 +2434,31 @@ function renderMyBets(){
   document.getElementById('myBetsList').innerHTML=entries.map(([rid,bet])=>{
     const race=ALL_RACES.find(r=>r.id===rid); if(!race) return '';
     const res=state.results[rid];
+    const now = new Date();
+    const qualiDate = new Date(race.quali);
+    const votesAreClosed = now >= qualiDate;
+    
+    // Si ce n'est pas notre propre profil ET que les votes ne sont pas encore clos
+    // alors on cache le pronostic
+    if(!isOwnProfile && !votesAreClosed){
+      const badgeCls = race.sport==='f1'?'f1-badge':'mgp-badge';
+      const badgeIcon = race.sport==='f1'?'🏎️':'🏍️';
+      return `<div class="mb-card" style="flex-direction:column;align-items:stretch">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem">
+          <div>
+            <div class="mb-race" style="display:flex;align-items:center;gap:.5rem">
+              <span class="sport-badge ${badgeCls}">${badgeIcon} ${race.sport==='f1'?'F1':'MotoGP'}</span>
+              GP ${race.name}
+            </div>
+            <div class="mb-pred" style="color:var(--muted);font-style:italic">🔒 Pronostic masqué (votes ouverts)</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:.75rem;flex-shrink:0">
+            <div class="mb-status pending">Votes ouverts</div>
+          </div>
+        </div>
+      </div>`;
+    }
+    
     const p=res?calcPts(bet,res):null;
     const badgeCls = race.sport==='f1'?'f1-badge':'mgp-badge';
     const badgeIcon = race.sport==='f1'?'🏎️':'🏍️';
@@ -2458,7 +2484,7 @@ function renderMyBets(){
           <div class="mb-pred">${driverName(bet.p1)} / ${driverName(bet.p2)} / ${driverName(bet.p3)}${bet.pole?` · Pole: ${driverName(bet.pole)}`:''}${bet.fl?` · FL: ${driverName(bet.fl)}`:''}${race.sprint&&bet.sp1?` · Sprint: ${driverName(bet.sp1)}/${driverName(bet.sp2)}/${driverName(bet.sp3)}`:''}</div>
         </div>
         <div style="display:flex;align-items:center;gap:.75rem;flex-shrink:0">
-          <div class="mb-status ${res?'scored':'pending'}">${res?'Résultat connu':'En attente'}</div>
+          <div class="mb-status ${res?'scored':'pending'}">${res?'Résultat connu':'Votes clos'}</div>
           ${detail!==null?`<div class="mb-pts">${detail.total} pts</div>`:''}
         </div>
       </div>
