@@ -151,6 +151,17 @@
   .race-card.mgp-card:hover { border-color: rgba(255,107,0,.3); }
   .race-card:hover::before { transform: scaleX(1); }
   .race-card.has-bet::before { transform: scaleX(1); background: var(--gold); }
+  .rc-sessions-btn {
+    display:inline-flex; align-items:center; gap:.3rem;
+    margin-top:.75rem;
+    background:none; border:1px solid var(--border);
+    border-radius:8px; color:var(--muted); cursor:pointer;
+    font-size:.75rem; font-family:'Share Tech Mono',monospace;
+    letter-spacing:.06em; padding:.35rem .7rem;
+    transition:all .15s;
+  }
+  .rc-sessions-btn:hover { border-color:var(--accent); color:var(--text); }
+
   .race-card.has-bet { border-color: rgba(245,166,35,.2); }
   .rc-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: .8rem; gap: .5rem; }
   .rc-round { font-family: 'Share Tech Mono', monospace; font-size: .7rem; color: var(--muted); }
@@ -714,6 +725,142 @@
     transition:background .15s;
   }
   #avatarLightbox .lb-close:hover { background:rgba(255,255,255,.3); }
+
+  /* ── SESSION RESULTS MODAL ── */
+  #sessionModal {
+    display:none; position:fixed; inset:0; z-index:8000;
+    background:rgba(0,0,0,.88); backdrop-filter:blur(12px);
+    align-items:flex-start; justify-content:center;
+    padding:1rem; overflow-y:auto;
+  }
+  #sessionModal.open { display:flex; }
+  .sm-box {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:18px; width:100%; max-width:560px;
+    margin:auto; overflow:hidden;
+    box-shadow:0 24px 64px rgba(0,0,0,.7);
+    display:flex; flex-direction:column;
+  }
+  .sm-header {
+    padding:1.1rem 1.25rem .9rem;
+    border-bottom:1px solid var(--border);
+    display:flex; align-items:flex-start; justify-content:space-between; gap:.75rem;
+  }
+  .sm-title { font-family:'Orbitron',monospace; font-size:.95rem; font-weight:700; }
+  .sm-sub { font-size:.75rem; color:var(--muted); margin-top:.2rem; font-family:'Share Tech Mono',monospace; }
+  .sm-close { background:none; border:none; color:var(--muted); cursor:pointer; font-size:1.1rem; padding:.2rem; transition:color .15s; flex-shrink:0; }
+  .sm-close:hover { color:white; }
+
+  /* Session tabs */
+  .sm-tabs {
+    display:flex; overflow-x:auto; border-bottom:1px solid var(--border);
+    scrollbar-width:none; background:var(--surface2);
+  }
+  .sm-tabs::-webkit-scrollbar { display:none; }
+  .sm-tab {
+    flex-shrink:0; padding:.65rem .9rem;
+    font-family:'Share Tech Mono',monospace; font-size:.7rem;
+    letter-spacing:.08em; text-transform:uppercase;
+    background:none; border:none; color:var(--muted); cursor:pointer;
+    border-bottom:2px solid transparent; transition:all .15s;
+    white-space:nowrap;
+  }
+  .sm-tab:hover { color:white; }
+  .sm-tab.active { color:var(--accent); border-bottom-color:var(--accent); }
+  body.motogp .sm-tab.active { color:var(--orange); border-bottom-color:var(--orange); }
+  .sm-tab.has-data::after { content:'●'; font-size:.45rem; margin-left:.3rem; vertical-align:middle; opacity:.7; }
+
+  /* Session content */
+  .sm-body { padding:1rem 1.25rem; flex:1; }
+  .sm-empty {
+    text-align:center; color:var(--muted); font-size:.85rem;
+    padding:2.5rem 1rem;
+  }
+  .sm-empty-icon { font-size:2rem; margin-bottom:.5rem; }
+
+  /* Results table */
+  .sr-table { width:100%; border-collapse:collapse; }
+  .sr-table th {
+    font-family:'Share Tech Mono',monospace; font-size:.65rem;
+    letter-spacing:.1em; text-transform:uppercase; color:var(--muted);
+    padding:.5rem .6rem; text-align:left; border-bottom:1px solid var(--border);
+  }
+  .sr-table th.num { text-align:center; width:36px; }
+  .sr-table th.gap { text-align:right; }
+  .sr-table td { padding:.55rem .6rem; font-size:.88rem; border-bottom:1px solid rgba(255,255,255,.04); }
+  .sr-table td.pos { text-align:center; font-family:'Orbitron',monospace; font-weight:700; font-size:.8rem; }
+  .sr-table td.gap { text-align:right; font-family:'Share Tech Mono',monospace; font-size:.78rem; color:var(--muted); }
+  .sr-table td.time-cell { font-family:'Share Tech Mono',monospace; font-size:.78rem; }
+  .sr-table tr:last-child td { border-bottom:none; }
+  .sr-table tr:hover td { background:rgba(255,255,255,.025); }
+  .pos-medal { font-size:1rem; }
+  .sr-dnf { color:var(--muted); font-style:italic; font-size:.8rem; }
+
+  /* Quali sectors */
+  .q-elim { opacity:.45; }
+  .q-badge {
+    display:inline-block; font-size:.6rem; font-family:'Share Tech Mono',monospace;
+    padding:.1rem .35rem; border-radius:4px; margin-left:.4rem; vertical-align:middle;
+    letter-spacing:.05em;
+  }
+  .q-badge.q1-out { background:rgba(255,100,100,.18); color:#ff8888; }
+  .q-badge.q2-out { background:rgba(255,180,50,.15); color:#f5a623; }
+
+  /* Admin session editor */
+  .se-section { margin-bottom:1.25rem; }
+  .se-label { font-size:.72rem; color:var(--muted); font-family:'Share Tech Mono',monospace;
+    letter-spacing:.08em; text-transform:uppercase; margin-bottom:.5rem; }
+  .se-row {
+    display:grid; grid-template-columns:28px 1fr 110px 110px auto;
+    gap:.4rem; align-items:center; margin-bottom:.3rem;
+  }
+  .se-row-sprint {
+    display:grid; grid-template-columns:28px 1fr 110px auto;
+    gap:.4rem; align-items:center; margin-bottom:.3rem;
+  }
+  .se-pos { font-family:'Orbitron',monospace; font-size:.72rem; font-weight:700;
+    color:var(--muted); text-align:center; }
+  .se-input {
+    background:var(--surface3); border:1px solid var(--border);
+    border-radius:8px; color:var(--text); font-family:'Share Tech Mono',monospace;
+    font-size:.78rem; padding:.4rem .6rem; outline:none; width:100%;
+  }
+  .se-input:focus { border-color:var(--accent); }
+  .se-select {
+    background:var(--surface3); border:1px solid var(--border);
+    border-radius:8px; color:var(--text); font-family:'Rajdhani',sans-serif;
+    font-size:.85rem; padding:.4rem .6rem; outline:none; width:100%;
+  }
+  .se-select:focus { border-color:var(--accent); }
+  .se-del { background:none; border:none; color:var(--muted); cursor:pointer;
+    font-size:.9rem; padding:.2rem; border-radius:4px; transition:all .15s; }
+  .se-del:hover { color:#ff6666; background:rgba(255,100,100,.1); }
+  .se-add { background:none; border:1px dashed var(--border); color:var(--muted);
+    border-radius:8px; padding:.45rem; cursor:pointer; font-size:.8rem;
+    width:100%; transition:all .15s; margin-top:.2rem; font-family:'Rajdhani',sans-serif; }
+  .se-add:hover { border-color:var(--accent); color:var(--text); }
+  .se-header-row {
+    display:grid; grid-template-columns:28px 1fr 110px 110px auto;
+    gap:.4rem; margin-bottom:.3rem;
+  }
+  .se-header-row-sprint {
+    display:grid; grid-template-columns:28px 1fr 110px auto;
+    gap:.4rem; margin-bottom:.3rem;
+  }
+  .se-col-label { font-size:.62rem; color:var(--muted); font-family:'Share Tech Mono',monospace;
+    letter-spacing:.06em; text-transform:uppercase; }
+  .sm-save-btn {
+    width:100%; background:var(--accent); border:none; color:white;
+    border-radius:10px; padding:.75rem; font-family:'Rajdhani',sans-serif;
+    font-size:.95rem; font-weight:700; cursor:pointer; transition:filter .15s;
+    margin-top:.5rem;
+  }
+  body.motogp .sm-save-btn { background:var(--orange); }
+  .sm-save-btn:hover { filter:brightness(1.15); }
+  @media(max-width:500px){
+    .se-row { grid-template-columns:24px 1fr 85px 85px auto; }
+    .se-header-row { grid-template-columns:24px 1fr 85px 85px auto; }
+  }
 </style>
 </head>
 <body>
@@ -1297,10 +1444,11 @@ function fmtCountdownShort(ms) {
 // ===== STATE =====
 let state = {
   users: [],
-  bets: {},       // bets[userId][raceId]
-  results: {},    // results[raceId]
-  seasonResults: null, // { f1Champ, f1Team, mgpChamp, mgpTeam }
-  currentUser: null, // always require login
+  bets: {},           // bets[userId][raceId]
+  results: {},        // results[raceId]
+  sessionResults: {}, // sessionResults[raceId] = { fp1:[...], fp2:[...], fp3:[...], q:[...], sq:[...], sprint:[...], race:[...] }
+  seasonResults: null,
+  currentUser: null,
   currentSport: localStorage.getItem('f1bets_sport') || 'f1',
   profileTab: 'f1',
 };
@@ -1357,6 +1505,11 @@ onSnapshot(collection(db,'results'), snap => {
   snap.docs.forEach(d=>{ state.results[d.id]=d.data(); });
   refresh(); setSynced();
 }, e=>{ console.warn('results snap error',e); setSyncError(); });
+
+onSnapshot(collection(db,'sessionResults'), snap => {
+  state.sessionResults = {};
+  snap.docs.forEach(d=>{ state.sessionResults[d.id]=d.data(); });
+}, e=>{ console.warn('sessionResults snap error',e); });
 
 function refresh(){
   const p = document.querySelector('.page.active')?.id?.replace('page-','');
@@ -1651,6 +1804,7 @@ function buildCard(r, uid, sp) {
     + countdownHtml
     + '<div class="rc-bets-info">' + betsInfo + '</div>'
     + previewHtml
+    + '<button class="rc-sessions-btn" onclick="event.stopPropagation();openSessionModal(\'' + r.id + '\')" title="Résultats des sessions">📋 Sessions</button>'
     + '</div>';
 }
 
@@ -3046,6 +3200,227 @@ window.closeAvatarLightbox = () => {
 document.addEventListener('keydown', e => {
   if(e.key === 'Escape') closeAvatarLightbox();
 });
+
+// ===== SESSION RESULTS =====
+// Ordre chronologique weekend normal  : EL1 · EL2 · EL3 · Qualifs · Course
+// Ordre chronologique weekend sprint  : EL1 · Q.Sprint · Sprint · Qualifs · Course
+const SESSION_DEFS_NORMAL = [
+  { key:'fp1',    label:'EL 1',      icon:'' },
+  { key:'fp2',    label:'EL 2',      icon:'' },
+  { key:'fp3',    label:'EL 3',      icon:'' },
+  { key:'q',      label:'Qualifs',   icon:''  },
+  { key:'race',   label:'Course',    icon:''  },
+];
+const SESSION_DEFS_SPRINT = [
+  { key:'fp1',    label:'EL 1',      icon:'' },
+  { key:'sq',     label:'Q. Sprint', icon:''  },
+  { key:'sprint', label:'Sprint',    icon:''  },
+  { key:'q',      label:'Qualifs',   icon:''  },
+  { key:'race',   label:'Course',    icon:''  },
+];
+// kept for lookup by key
+const SESSION_DEFS = [
+  { key:'fp1',    label:'EL 1',      icon:'' },
+  { key:'fp2',    label:'EL 2',      icon:'' },
+  { key:'fp3',    label:'EL 3',      icon:'' },
+  { key:'q',      label:'Qualifs',   icon:''  },
+  { key:'sq',     label:'Q. Sprint', icon:''  },
+  { key:'sprint', label:'Sprint',    icon:''  },
+  { key:'race',   label:'Course',    icon:''  },
+];
+
+let smCurrentRaceId = null;
+let smCurrentTab = null;
+let smEditorRows = {}; // key -> [{driver, time, gap}]
+
+window.openSessionModal = (raceId) => {
+  smCurrentRaceId = raceId;
+  const race = ALL_RACES.find(r=>r.id===raceId);
+  const sport = race?.sport || 'f1';
+  document.getElementById('smTitle').textContent = 'GP de ' + (race?.name || '');
+  document.getElementById('smSub').textContent = (sport==='f1'?'🏎️ F1':'🏍️ MotoGP') + ' — Résultats des sessions';
+
+  const isSprint = !!race?.sprint;
+  const tabs = isSprint ? SESSION_DEFS_SPRINT : SESSION_DEFS_NORMAL;
+
+  const data = state.sessionResults[raceId] || {};
+  const tabsEl = document.getElementById('smTabs');
+  tabsEl.innerHTML = tabs.map(s => {
+    const hasData = data[s.key] && data[s.key].length > 0;
+    return `<button class="sm-tab${hasData?' has-data':''}" data-key="${s.key}" onclick="smSwitchTab('${s.key}')">${s.label}</button>`;
+  }).join('');
+
+  // Open to first tab with data, or first tab
+  const firstWithData = tabs.find(s => data[s.key]?.length > 0);
+  smSwitchTab((firstWithData || tabs[0]).key);
+  document.getElementById('sessionModal').classList.add('open');
+};
+
+window.closeSessionModal = () => {
+  document.getElementById('sessionModal').classList.remove('open');
+};
+
+window.smSwitchTab = (key) => {
+  smCurrentTab = key;
+  document.querySelectorAll('.sm-tab').forEach(b => b.classList.toggle('active', b.dataset.key===key));
+  renderSmBody();
+};
+
+function renderSmBody() {
+  const race = ALL_RACES.find(r=>r.id===smCurrentRaceId);
+  const sport = race?.sport || 'f1';
+  const drivers = sport==='f1' ? F1_DRIVERS : MOTOGP_RIDERS;
+  const key = smCurrentTab;
+  const data = (state.sessionResults[smCurrentRaceId] || {})[key] || [];
+  const sessDef = SESSION_DEFS.find(s=>s.key===key);
+  const body = document.getElementById('smBody');
+
+  if(isAdminSession) {
+    // Admin editor
+    body.innerHTML = renderSessionEditor(key, sessDef, data, drivers, race);
+  } else {
+    // Public view
+    if(!data.length) {
+      body.innerHTML = `<div class="sm-empty"><div class="sm-empty-icon">${sessDef?.icon||'⏳'}</div><div>Pas encore de résultats pour cette session.</div></div>`;
+      return;
+    }
+    body.innerHTML = renderSessionPublic(key, sessDef, data, drivers);
+  }
+}
+
+function driverName(id, drivers) {
+  return drivers.find(d=>d.id===id)?.name || id || '—';
+}
+
+function renderSessionPublic(key, sessDef, rows, drivers) {
+  const isQ = key==='q' || key==='sq';
+  const isRace = key==='race' || key==='sprint';
+  let html = `<table class="sr-table"><thead><tr>
+    <th class="num">Pos</th>
+    <th>Pilote</th>
+    <th class="gap">${isRace ? 'Écart' : 'Temps'}</th>
+    ${isRace ? '<th class="gap">Écart</th>' : ''}
+  </tr></thead><tbody>`;
+
+  rows.forEach((row, i) => {
+    const pos = i + 1;
+    const medal = pos===1 ? '🥇' : pos===2 ? '🥈' : pos===3 ? '🥉' : '';
+    const name = driverName(row.driver, drivers);
+    const isDNF = row.gap && row.gap.toUpperCase()==='DNF';
+    const isElim = isQ && ((key==='q' && pos > 15) || (key==='sq' && pos > 14)); // rough elim lines
+    const qBadge = isQ && pos===16 ? '<span class="q-badge q1-out">Q1 ✗</span>' : 
+                   isQ && pos===11 ? '<span class="q-badge q2-out">Q2 ✗</span>' : '';
+    html += `<tr class="${isElim?'q-elim':''}">
+      <td class="pos">${medal || pos}</td>
+      <td>${name}${qBadge}</td>
+      <td class="time-cell">${isDNF ? '' : (row.time||'—')}</td>
+      ${isRace ? `<td class="gap">${isDNF ? '<span class="sr-dnf">DNF</span>' : (pos===1 ? '—' : (row.gap||'—'))}</td>` : ''}
+    </tr>`;
+  });
+
+  html += '</tbody></table>';
+  return html;
+}
+
+function renderSessionEditor(key, sessDef, rows, drivers, race) {
+  const isRace = key==='race' || key==='sprint';
+  const isQ = key==='q' || key==='sq';
+  // init editor rows from saved data or empty
+  if(!smEditorRows[key]) {
+    smEditorRows[key] = rows.length ? rows.map(r=>({...r})) : [{driver:'',time:'',gap:''}];
+  }
+  const eRows = smEditorRows[key];
+  const driverOpts = '<option value="">— Pilote —</option>' + drivers.map(d=>`<option value="${d.id}">${d.name}</option>`).join('');
+
+  let html = `<div class="se-section">
+    <div class="se-label">${sessDef?.icon||''} ${sessDef?.label||key} — Saisie admin</div>`;
+
+  // header
+  if(isRace) {
+    html += `<div class="se-header-row">
+      <div class="se-col-label" style="text-align:center">Pos</div>
+      <div class="se-col-label">Pilote</div>
+      <div class="se-col-label">Meilleur Temps</div>
+      <div class="se-col-label">Écart</div>
+      <div></div>
+    </div>`;
+  } else {
+    html += `<div class="se-header-row">
+      <div class="se-col-label" style="text-align:center">Pos</div>
+      <div class="se-col-label">Pilote</div>
+      <div class="se-col-label">Temps</div>
+      <div></div>
+    </div>`;
+  }
+
+  eRows.forEach((row, i) => {
+    const selVal = row.driver || '';
+    const sel = `<select class="se-select" onchange="smRowChange('${key}',${i},'driver',this.value)">${driverOpts.replace(`value="${selVal}"`,`value="${selVal}" selected`)}</select>`;
+    const timeInp = `<input class="se-input" type="text" placeholder="${i===0?'1:23.456':'+'}" value="${row.time||''}" oninput="smRowChange('${key}',${i},'time',this.value)">`;
+    if(isRace) {
+      const gapInp = `<input class="se-input" type="text" placeholder="${i===0?'—':'+1.234 / DNF'}" value="${row.gap||''}" oninput="smRowChange('${key}',${i},'gap',this.value)">`;
+      html += `<div class="se-row">
+        <div class="se-pos">${i+1}</div>
+        ${sel}${timeInp}${gapInp}
+        <button class="se-del" onclick="smDelRow('${key}',${i})">✕</button>
+      </div>`;
+    } else {
+      html += `<div class="se-row-sprint">
+        <div class="se-pos">${i+1}</div>
+        ${sel}${timeInp}
+        <button class="se-del" onclick="smDelRow('${key}',${i})">✕</button>
+      </div>`;
+    }
+  });
+
+  html += `<button class="se-add" onclick="smAddRow('${key}')">+ Ajouter un pilote</button>
+  </div>
+  <button class="sm-save-btn" onclick="smSave('${key}')">💾 Enregistrer</button>`;
+  return html;
+}
+
+window.smRowChange = (key, idx, field, val) => {
+  if(!smEditorRows[key]) return;
+  smEditorRows[key][idx][field] = val;
+};
+
+window.smAddRow = (key) => {
+  if(!smEditorRows[key]) smEditorRows[key] = [];
+  smEditorRows[key].push({driver:'',time:'',gap:''});
+  renderSmBody();
+};
+
+window.smDelRow = (key, idx) => {
+  if(!smEditorRows[key]) return;
+  smEditorRows[key].splice(idx, 1);
+  if(smEditorRows[key].length === 0) smEditorRows[key] = [{driver:'',time:'',gap:''}];
+  renderSmBody();
+};
+
+window.smSave = async (key) => {
+  const rows = (smEditorRows[key]||[]).filter(r=>r.driver);
+  if(!rows.length) { toast('⚠️ Aucune entrée à sauvegarder', false); return; }
+  setSyncing();
+  try {
+    const existing = state.sessionResults[smCurrentRaceId] || {};
+    const updated = {...existing, [key]: rows};
+    await setDoc(doc(db,'sessionResults',smCurrentRaceId), updated);
+    state.sessionResults[smCurrentRaceId] = updated;
+    // refresh tab indicators
+    openSessionModal(smCurrentRaceId);
+    smSwitchTab(key);
+    toast('✅ Session enregistrée !', true);
+    setSynced();
+  } catch(e) { toast('❌ Erreur sauvegarde', false); setSyncError(); }
+};
+
+// Reset editor cache when switching race
+const _origOpenSessionModal = window.openSessionModal;
+window.openSessionModal = (raceId) => {
+  if(raceId !== smCurrentRaceId) smEditorRows = {};
+  _origOpenSessionModal(raceId);
+};
+
 </script>
 <!-- SEASON RESULTS MODAL -->
 <div id="seasonResultsModal" style="display:none;position:fixed;inset:0;z-index:9400;background:rgba(0,0,0,.92);backdrop-filter:blur(12px);align-items:center;justify-content:center;padding:1rem">
@@ -3112,6 +3487,21 @@ document.addEventListener('keydown', e => {
     <button class="lb-close" onclick="closeAvatarLightbox()">✕</button>
   </div>
   <div class="lb-name" id="lbName"></div>
+</div>
+
+<!-- SESSION RESULTS MODAL -->
+<div id="sessionModal">
+  <div class="sm-box">
+    <div class="sm-header">
+      <div>
+        <div class="sm-title" id="smTitle">Grand Prix</div>
+        <div class="sm-sub" id="smSub">Sessions</div>
+      </div>
+      <button class="sm-close" onclick="closeSessionModal()">✕</button>
+    </div>
+    <div class="sm-tabs" id="smTabs"></div>
+    <div class="sm-body" id="smBody"></div>
+  </div>
 </div>
 </body>
 </html>
