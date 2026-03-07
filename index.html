@@ -1289,23 +1289,29 @@
       </div>
     </div>
     <div class="bet-section">
-      <div class="bet-section-title">🏁 Résultat Grand Prix</div>
+      <div class="bet-section-title">🏎️ Qualifications</div>
+      <div style="font-size:.75rem;color:var(--muted);margin-bottom:.75rem">Sauvegarder la pole seule ne clôture pas la course.</div>
+      <div class="extra-bets">
+        <div class="extra-bet-row"><div><div class="extra-bet-label">Pole Position</div></div><select id="res-pole"></select></div>
+      </div>
+    </div>
+    <div class="bet-section">
+      <div class="bet-section-title">🏁 Résultat Course <span style="font-size:.7rem;font-family:'Share Tech Mono',monospace;color:var(--muted);font-weight:400;letter-spacing:.05em">— clôture la course</span></div>
       <div class="podium-grid">
-        <div class="podium-slot"><div class="podium-pos p1">1</div><select id="res-p1"></select></div>
+        <div class="podium-slot"><div class="podium-pos p1">1</div><select id="res-p1" onchange="updateSaveResultBtn()"></select></div>
         <div class="podium-slot"><div class="podium-pos p2">2</div><select id="res-p2"></select></div>
         <div class="podium-slot"><div class="podium-pos p3">3</div><select id="res-p3"></select></div>
       </div>
     </div>
     <div class="bet-section">
-      <div class="bet-section-title">Bonus GP</div>
+      <div class="bet-section-title">⚡ Bonus Course</div>
       <div class="extra-bets">
-        <div class="extra-bet-row"><div><div class="extra-bet-label">Pole Position</div></div><select id="res-pole"></select></div>
         <div class="extra-bet-row"><div><div class="extra-bet-label">Meilleur Tour</div></div><select id="res-fl"></select></div>
       </div>
     </div>
     <div class="modal-footer">
       <button class="btn-secondary" onclick="closeResultModal()">Annuler</button>
-      <button class="btn-primary" onclick="saveResult()">Valider →</button>
+      <button class="btn-primary" id="saveResultBtn" onclick="saveResult()">Valider →</button>
     </div>
   </div>
 </div>
@@ -1784,7 +1790,7 @@ function renderHome(){
   const sportBets = Object.values(state.bets).reduce((s,ub)=>{
     return s + Object.keys(ub).filter(rid=>{const r=ALL_RACES.find(x=>x.id===rid); return r&&r.sport===sp;}).length;
   },0);
-  const sportResults = Object.keys(state.results).filter(rid=>{const r=ALL_RACES.find(x=>x.id===rid); return r&&r.sport===sp;}).length;
+  const sportResults = Object.keys(state.results).filter(rid=>{const r=ALL_RACES.find(x=>x.id===rid); return r&&r.sport===sp&&state.results[rid]?.p1;}).length;
   const statClass = isF1 ? 'f1-stat' : 'mgp-stat';
   document.getElementById('statsRow').innerHTML=`
     <div class="stat-card ${statClass}"><div class="stat-num">${state.users.length}</div><div class="stat-label">Parieurs</div></div>
@@ -1818,7 +1824,7 @@ function lbRow(u,i){
 // ===== RACES =====
 function buildCard(r, uid, sp) {
   const closed  = isBettingClosed(r);
-  const hasRes  = !!state.results[r.id];
+  const hasRes  = !!(state.results[r.id]?.p1);
   const hasBet  = uid && state.bets[uid] && state.bets[uid][r.id];
   const total   = Object.values(state.bets).filter(function(ub){return ub[r.id];}).length;
   const msLeft  = new Date(r.quali) - new Date();
@@ -1944,8 +1950,8 @@ function renderLeaderboard(){
   // Title & sub
   if(isCombined) {
     document.getElementById('lbTitle').textContent = '🏆 Classement Cumulé';
-    const f1done  = ALL_RACES.filter(r=>r.sport==='f1'    &&state.results[r.id]).length;
-    const mgpdone = ALL_RACES.filter(r=>r.sport==='motogp' &&state.results[r.id]).length;
+    const f1done  = ALL_RACES.filter(r=>r.sport==='f1'    &&state.results[r.id]?.p1).length;
+    const mgpdone = ALL_RACES.filter(r=>r.sport==='motogp' &&state.results[r.id]?.p1).length;
     document.getElementById('lbSub').textContent = state.users.length+' parieurs — F1: '+f1done+' courses · MotoGP: '+mgpdone+' courses terminées';
   } else {
     document.getElementById('lbTitle').textContent = isF1 ? '🏎️ Classement F1' : '🏍️ Classement MotoGP';
@@ -1978,7 +1984,7 @@ function renderLeaderboard(){
 
   // Race results selector — show for active sport tab (not combined shows current sport)
   const raceSp = isCombined ? state.currentSport : tab;
-  const done = ALL_RACES.filter(r=>r.sport===raceSp && state.results[r.id]);
+  const done = ALL_RACES.filter(r=>r.sport===raceSp && state.results[r.id]?.p1);
   const rrsClass = raceSp==='f1' ? 'f1-btn' : 'mgp-btn';
   document.getElementById('resultsHeaderWrap').style.display = isCombined ? 'none' : '';
   document.getElementById('resultsSelector').style.display  = isCombined ? 'none' : '';
@@ -2164,7 +2170,7 @@ window.openBetModal = raceId => {
   const sprintClosed = isSprintBettingClosed(race);
   const gpClosed = isGPBettingClosed(race);
   const fullyClosed = isBettingClosed(race); // earliest deadline
-  const hasRes = !!state.results[raceId];
+  const hasRes = !!(state.results[raceId]?.p1);
 
   document.getElementById('modalRaceName').textContent = 'GP de '+race.name;
   const badgeHtml = '<span class="sport-badge '+(isF1?'f1-badge':'mgp-badge')+'">'+(isF1?'🏎️ F1':'🏍️ MotoGP')+'</span>'
@@ -2321,6 +2327,7 @@ window.openResultModalFor=raceId=>{
   // Show/hide sprint result section
   const sprintSec = document.getElementById('sprintResSection');
   if(sprintSec) sprintSec.style.display = race?.sprint ? '' : 'none';
+  updateSaveResultBtn();
   document.getElementById('resultModal').classList.add('open');
 };
 window.closeResultModal=()=>document.getElementById('resultModal').classList.remove('open');
@@ -2329,22 +2336,43 @@ window.saveResult=async()=>{
   if(!isAdminSession){ toast('🔒 Accès réservé à l\'administrateur', false); return; }
   setSyncing();
   const race = ALL_RACES.find(r=>r.id===currentRaceId);
-  const resData = {
-    p1:document.getElementById('res-p1').value,
-    p2:document.getElementById('res-p2').value,
-    p3:document.getElementById('res-p3').value,
-    pole:document.getElementById('res-pole').value,
-    fl:document.getElementById('res-fl').value,
-  };
-  if(race?.sprint) {
-    resData.sp1 = document.getElementById('res-sp1').value;
-    resData.sp2 = document.getElementById('res-sp2').value;
-    resData.sp3 = document.getElementById('res-sp3').value;
+  const p1val = document.getElementById('res-p1').value;
+  const isFullResult = !!p1val;
+
+  if(isFullResult){
+    // Full result: saves podium → marks race as Terminée
+    const resData = {
+      p1: p1val,
+      p2: document.getElementById('res-p2').value,
+      p3: document.getElementById('res-p3').value,
+      pole: document.getElementById('res-pole').value,
+      fl: document.getElementById('res-fl').value,
+    };
+    if(race?.sprint){
+      resData.sp1 = document.getElementById('res-sp1').value;
+      resData.sp2 = document.getElementById('res-sp2').value;
+      resData.sp3 = document.getElementById('res-sp3').value;
+    }
+    try {
+      await setDoc(doc(db,'results',currentRaceId), resData);
+      closeResultModal(); toast('🏁 Résultats enregistrés !', true);
+    } catch(e){ toast('❌ Erreur', false); setSyncError(); }
+  } else {
+    // Partial (quali only): save only pole — merge so existing data is preserved
+    const partial = { pole: document.getElementById('res-pole').value };
+    if(race?.sprint){
+      partial.sp1 = document.getElementById('res-sp1').value;
+      partial.sp2 = document.getElementById('res-sp2').value;
+      partial.sp3 = document.getElementById('res-sp3').value;
+    }
+    // Remove empty fields so we don't overwrite with ""
+    Object.keys(partial).forEach(k => { if(!partial[k]) delete partial[k]; });
+    if(!Object.keys(partial).length){ toast('ℹ️ Aucune donnée à enregistrer', true); return; }
+    try {
+      await setDoc(doc(db,'results',currentRaceId), partial, {merge:true});
+      closeResultModal(); toast('🎯 Pole enregistrée (course non clôturée)', true);
+    } catch(e){ toast('❌ Erreur', false); setSyncError(); }
   }
-  try {
-    await setDoc(doc(db,'results',currentRaceId), resData);
-    closeResultModal(); toast('🏁 Résultats enregistrés !',true);
-  } catch(e){ toast('❌ Erreur',false); setSyncError(); }
 };
 
 // ===== USER MODAL =====
@@ -3658,6 +3686,20 @@ window.openSessionModal = (raceId) => {
 };
 
 
+
+
+function updateSaveResultBtn(){
+  const p1 = document.getElementById('res-p1')?.value;
+  const btn = document.getElementById('saveResultBtn');
+  if(!btn) return;
+  if(p1){
+    btn.textContent = '🏁 Valider Course →';
+    btn.style.background = '';
+  } else {
+    btn.textContent = '🎯 Sauver Pole →';
+    btn.style.background = 'rgba(245,166,35,.25)';
+  }
+}
 
 </script>
 <!-- SEASON RESULTS MODAL -->
