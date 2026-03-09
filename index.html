@@ -162,6 +162,69 @@
   }
   .rc-sessions-btn:hover { border-color:var(--accent); color:var(--text); }
 
+  .rc-reminder-btn {
+    display:inline-flex; align-items:center; gap:.3rem;
+    margin-top:.75rem; margin-left:.5rem;
+    background:none; border:1px solid var(--border);
+    border-radius:8px; color:var(--muted); cursor:pointer;
+    font-size:.75rem; font-family:'Share Tech Mono',monospace;
+    letter-spacing:.06em; padding:.35rem .7rem;
+    transition:all .15s;
+  }
+  .rc-reminder-btn:hover { border-color:rgba(245,166,35,.5); color:var(--gold); }
+  .rc-reminder-btn.active { border-color:rgba(245,166,35,.5); color:var(--gold); background:rgba(245,166,35,.08); }
+
+  /* Reminder Modal */
+  #reminderModal {
+    display:none; position:fixed; inset:0; z-index:9600;
+    background:rgba(0,0,0,.88); backdrop-filter:blur(12px);
+    align-items:center; justify-content:center; padding:1rem;
+  }
+  #reminderModal.open { display:flex; }
+  .rm-box {
+    background:var(--surface); border:1px solid var(--gold);
+    border-radius:16px; padding:1.75rem; width:100%; max-width:380px;
+  }
+  .rm-title {
+    font-family:'Orbitron',monospace; font-size:.9rem; font-weight:700;
+    color:var(--gold); text-align:center; margin-bottom:.25rem;
+  }
+  .rm-sub {
+    font-size:.8rem; color:var(--muted); text-align:center;
+    margin-bottom:1.25rem; font-family:'Share Tech Mono',monospace;
+  }
+  .rm-options { display:grid; grid-template-columns:1fr 1fr; gap:.6rem; margin-bottom:1rem; }
+  .rm-opt {
+    background:var(--surface2); border:1px solid var(--border);
+    border-radius:10px; padding:.75rem; text-align:center;
+    cursor:pointer; transition:all .15s; font-family:'Rajdhani',sans-serif;
+    font-weight:700; font-size:.9rem; color:var(--muted);
+  }
+  .rm-opt:hover { border-color:rgba(245,166,35,.4); color:var(--text); }
+  .rm-opt.selected { border-color:var(--gold); color:var(--gold); background:rgba(245,166,35,.1); }
+  .rm-opt .rm-opt-label { font-size:.68rem; color:var(--muted); font-weight:400; font-family:'Share Tech Mono',monospace; margin-top:.2rem; }
+  .rm-notif-warning {
+    font-size:.78rem; color:rgba(245,166,35,.8); background:rgba(245,166,35,.07);
+    border:1px solid rgba(245,166,35,.2); border-radius:8px;
+    padding:.65rem .85rem; margin-bottom:1rem; display:none;
+  }
+  .rm-set-reminders { display:flex; flex-direction:column; gap:.4rem; margin-bottom:1rem; }
+  .rm-existing {
+    display:flex; align-items:center; justify-content:space-between;
+    background:var(--surface2); border:1px solid rgba(245,166,35,.25);
+    border-radius:8px; padding:.5rem .75rem;
+    font-size:.8rem; font-family:'Share Tech Mono',monospace; color:var(--gold);
+  }
+  .rm-del-btn {
+    background:none; border:none; color:var(--muted); cursor:pointer;
+    font-size:.85rem; padding:.1rem .3rem; transition:color .15s;
+  }
+  .rm-del-btn:hover { color:#ff4466; }
+  .rm-actions { display:flex; gap:.75rem; }
+  .rm-cancel { flex:1; background:none; border:1px solid var(--border); color:var(--muted); border-radius:8px; padding:.7rem; cursor:pointer; font-family:'Rajdhani',sans-serif; font-size:.9rem; }
+  .rm-confirm { flex:2; background:var(--gold); border:none; color:#111; border-radius:8px; padding:.7rem; cursor:pointer; font-family:'Rajdhani',sans-serif; font-size:.95rem; font-weight:700; transition:opacity .15s; }
+  .rm-confirm:disabled { opacity:.4; cursor:default; }
+
   .race-card.has-bet { border-color: rgba(245,166,35,.2); }
   .rc-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: .8rem; gap: .5rem; }
   .rc-round { font-family: 'Share Tech Mono', monospace; font-size: .7rem; color: var(--muted); }
@@ -942,6 +1005,128 @@
     background:var(--surface3);
   }
 
+  /* ── BADGE SYSTEM ── */
+  .badges-section { margin-bottom:2rem; }
+  .badges-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: .75rem;
+    margin-top: .75rem;
+  }
+  .badge-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1rem .85rem;
+    display: flex; flex-direction: column; align-items: center;
+    text-align: center; gap: .45rem;
+    transition: all .2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .badge-card.unlocked {
+    border-color: rgba(245,166,35,.35);
+    background: linear-gradient(135deg, rgba(245,166,35,.07) 0%, var(--surface2) 100%);
+  }
+  .badge-card.unlocked:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 28px rgba(245,166,35,.18);
+    border-color: rgba(245,166,35,.6);
+  }
+  .badge-card.locked {
+    opacity: .42;
+    filter: grayscale(0.6);
+  }
+  .badge-card.locked:hover { opacity: .6; }
+  .badge-card.rare.unlocked { border-color: rgba(147,112,219,.5); background: linear-gradient(135deg, rgba(147,112,219,.1) 0%, var(--surface2) 100%); }
+  .badge-card.rare.unlocked:hover { box-shadow: 0 8px 28px rgba(147,112,219,.25); border-color: rgba(147,112,219,.7); }
+  .badge-card.legendary.unlocked { border-color: rgba(255,50,50,.5); background: linear-gradient(135deg, rgba(255,50,50,.1) 0%, rgba(255,150,0,.07) 100%); }
+  .badge-card.legendary.unlocked:hover { box-shadow: 0 8px 32px rgba(255,80,0,.3); }
+  .badge-icon { font-size: 2rem; line-height: 1; filter: drop-shadow(0 2px 6px rgba(0,0,0,.4)); }
+  .badge-card.locked .badge-icon { filter: grayscale(1) brightness(.6); }
+  .badge-name {
+    font-family: 'Orbitron', monospace; font-size: .62rem; font-weight: 700;
+    letter-spacing: .06em; text-transform: uppercase;
+    color: var(--text);
+  }
+  .badge-card.locked .badge-name { color: var(--muted); }
+  .badge-desc {
+    font-family: 'Share Tech Mono', monospace; font-size: .63rem;
+    color: var(--muted); line-height: 1.35;
+  }
+  .badge-rarity {
+    font-size: .58rem; font-family: 'Share Tech Mono', monospace;
+    letter-spacing: .1em; text-transform: uppercase;
+    padding: .1rem .4rem; border-radius: 20px; margin-top: .1rem;
+  }
+  .badge-rarity.common   { background: rgba(100,200,100,.12); color: #6ec46e; border: 1px solid rgba(100,200,100,.2); }
+  .badge-rarity.rare     { background: rgba(147,112,219,.12); color: #b39ddb; border: 1px solid rgba(147,112,219,.25); }
+  .badge-rarity.legendary{ background: rgba(255,80,0,.12);   color: #ff9040; border: 1px solid rgba(255,80,0,.25); }
+  .badge-shine {
+    position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,.07) 50%, transparent 70%);
+    opacity: 0; transition: opacity .3s;
+  }
+  .badge-card.unlocked:hover .badge-shine { opacity: 1; }
+  .badge-date {
+    font-size: .58rem; color: var(--muted);
+    font-family: 'Share Tech Mono', monospace;
+    border-top: 1px solid rgba(255,255,255,.06);
+    padding-top: .35rem; width: 100%;
+  }
+
+  /* Badge mini chips for leaderboard rows */
+  .badge-chips { display:flex; gap:.25rem; flex-wrap:wrap; margin-top:.2rem; }
+  .badge-chip {
+    font-size: .85rem; line-height: 1;
+    cursor: default;
+    filter: drop-shadow(0 1px 3px rgba(0,0,0,.5));
+  }
+
+  /* Badge unlock animation */
+  #badgeUnlockPopup {
+    position: fixed; bottom: 6rem; left: 50%; transform: translateX(-50%) translateY(30px);
+    z-index: 9700; background: var(--surface);
+    border: 1px solid var(--gold); border-radius: 16px;
+    padding: 1rem 1.5rem; display: flex; align-items: center; gap: 1rem;
+    box-shadow: 0 16px 48px rgba(0,0,0,.7), 0 0 0 1px rgba(245,166,35,.15);
+    opacity: 0; transition: all .4s cubic-bezier(.34,1.56,.64,1);
+    pointer-events: none; max-width: 340px; width: calc(100vw - 3rem);
+  }
+  #badgeUnlockPopup.show {
+    opacity: 1; transform: translateX(-50%) translateY(0);
+    pointer-events: all;
+  }
+  .bup-icon { font-size: 2.2rem; flex-shrink: 0; animation: bup-spin .6s ease; }
+  @keyframes bup-spin { from { transform: rotate(-20deg) scale(.5); } to { transform: rotate(0) scale(1); } }
+  .bup-body { flex: 1; min-width: 0; }
+  .bup-label { font-size: .65rem; font-family: 'Share Tech Mono', monospace; letter-spacing: .15em; color: var(--gold); text-transform: uppercase; margin-bottom: .2rem; }
+  .bup-name { font-family: 'Orbitron', monospace; font-weight: 700; font-size: .9rem; }
+  .bup-desc { font-size: .78rem; color: var(--muted); margin-top: .15rem; }
+
+  /* Profile badges progress bar */
+  .badges-progress {
+    display: flex; align-items: center; gap: .75rem;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: .75rem 1rem; margin-bottom: 1rem;
+  }
+  .bp-label { font-family: 'Share Tech Mono', monospace; font-size: .72rem; color: var(--muted); white-space: nowrap; }
+  .bp-bar { flex: 1; height: 6px; background: rgba(255,255,255,.08); border-radius: 3px; overflow: hidden; }
+  .bp-fill { height: 100%; background: linear-gradient(90deg, var(--gold), #ffcc44); border-radius: 3px; transition: width .6s ease; }
+  .bp-count { font-family: 'Orbitron', monospace; font-size: .8rem; font-weight: 700; color: var(--gold); white-space: nowrap; }
+
+  /* Badge filter tabs */
+  .badge-filter-tabs { display: flex; gap: .4rem; flex-wrap: wrap; margin-bottom: .85rem; }
+  .bft-btn {
+    font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: .8rem;
+    letter-spacing: .08em; text-transform: uppercase;
+    padding: .35rem .85rem; border-radius: 6px;
+    border: 1px solid var(--border); background: var(--surface2);
+    color: var(--muted); cursor: pointer; transition: all .15s;
+  }
+  .bft-btn.active, .bft-btn:hover { color: var(--text); border-color: rgba(255,255,255,.2); background: var(--surface3); }
+  .bft-btn.active { color: var(--gold); border-color: rgba(245,166,35,.3); }
+
 </style>
 </head>
 <body>
@@ -1211,6 +1396,28 @@
     <div class="section-title">🏆 Paris Saison</div>
   </div>
   <div id="seasonBetsCard" style="margin-bottom:1.5rem"></div>
+
+  <!-- BADGES SECTION -->
+  <div class="section-header">
+    <div class="section-title">🎖️ Succès & Badges</div>
+  </div>
+  <div class="badges-section" id="badgesSection">
+    <div class="badges-progress">
+      <div class="bp-label">PROGRESSION</div>
+      <div class="bp-bar"><div class="bp-fill" id="badgesProgressFill" style="width:0%"></div></div>
+      <div class="bp-count" id="badgesProgressCount">0/0</div>
+    </div>
+    <div class="badge-filter-tabs">
+      <button class="bft-btn active" onclick="filterBadges('all',this)">Tous</button>
+      <button class="bft-btn" onclick="filterBadges('unlocked',this)">✅ Débloqués</button>
+      <button class="bft-btn" onclick="filterBadges('locked',this)">🔒 À débloquer</button>
+      <button class="bft-btn" onclick="filterBadges('common',this)">Commun</button>
+      <button class="bft-btn" onclick="filterBadges('rare',this)">Rare</button>
+      <button class="bft-btn" onclick="filterBadges('legendary',this)">Légendaire</button>
+    </div>
+    <div class="badges-grid" id="badgesGrid"></div>
+  </div>
+
   <div class="section-header">
     <div class="section-title">Mes Paris</div>
     <div class="section-sub" id="profileBetCount"></div>
@@ -1604,8 +1811,10 @@ function refresh(){
   if(p==='home') renderHome();
   if(p==='races') renderRaces();
   if(p==='leaderboard') renderLeaderboard();
-  if(p==='profile') renderProfile();
+  if(p==='profile') (window.renderProfile || renderProfile)();
   updateHeader();
+  // Trigger badge check on every state refresh (covers past races on initial load)
+  if(window._badgeCheck && state.currentUser) window._badgeCheck(state.currentUser);
 }
 
 // ===== SPORT SWITCH =====
@@ -1752,7 +1961,7 @@ window.showPage = id => {
   if(id==='home') renderHome();
   if(id==='races') renderRaces();
   if(id==='leaderboard') renderLeaderboard();
-  if(id==='profile') renderProfile();
+  if(id==='profile') (window.renderProfile || renderProfile)();
 };
 
 // ===== HOME =====
@@ -1892,7 +2101,10 @@ function buildCard(r, uid, sp) {
     + countdownHtml
     + '<div class="rc-bets-info">' + betsInfo + '</div>'
     + previewHtml
+    + '<div style="display:flex;flex-wrap:wrap">'
     + '<button class="rc-sessions-btn" onclick="event.stopPropagation();openSessionModal(\'' + r.id + '\')" title="Résultats des sessions">📋 Sessions</button>'
+    + (!hasRes && !closed ? '<button class="rc-reminder-btn" id="remBtn_' + r.id + '"' + (getReminderActive(r.id) ? ' class="rc-reminder-btn active"' : '') + ' onclick="event.stopPropagation();openReminderModal(\'' + r.id + '\')" title="Rappel avant clôture">🔔 Rappel</button>' : '')
+    + '</div>'
     + '</div>';
 }
 
@@ -2709,9 +2921,11 @@ function doLogin(userId, name){
   // Do NOT persist to localStorage — always require login on reload
   hideLoginModal();
   updateHeader();
-  renderProfile();
+  (window.renderProfile || renderProfile)();
   toast(`👋 Bienvenue, ${name} !`, true);
   updateProfileBanner();
+  // Silently award badges earned from past races (no popup flood on login)
+  if(window._badgeSilentScan) window._badgeSilentScan(userId);
 }
 
 window.createUserWithPin = async () => {
@@ -3701,6 +3915,15 @@ function updateSaveResultBtn(){
   }
 }
 
+// Expose module-scoped functions for external scripts
+window.renderProfile = renderProfile;
+window._moduleState = state;
+window._calcPts = calcPts;
+window._totalPts = totalPts;
+// _badgeCheck will be set by the badge script once loaded
+// The module calls it through window so the badge script can define it freely
+window._badgeCheck = window._badgeCheck || null;
+
 </script>
 <!-- SEASON RESULTS MODAL -->
 <div id="seasonResultsModal" style="display:none;position:fixed;inset:0;z-index:9400;background:rgba(0,0,0,.92);backdrop-filter:blur(12px);align-items:center;justify-content:center;padding:1rem">
@@ -3784,5 +4007,516 @@ function updateSaveResultBtn(){
   </div>
 </div>
 
+<!-- REMINDER MODAL -->
+<div id="reminderModal">
+  <div class="rm-box">
+    <div class="rm-title">🔔 Rappel avant clôture</div>
+    <div class="rm-sub" id="rmRaceName">Grand Prix</div>
+    <div class="rm-notif-warning" id="rmNotifWarning">
+      ⚠️ Les notifications sont bloquées dans votre navigateur. Activez-les dans les paramètres du site pour recevoir des rappels.
+    </div>
+    <div id="rmExistingWrap" style="display:none">
+      <div style="font-size:.72rem;color:var(--muted);margin-bottom:.4rem;font-family:'Share Tech Mono',monospace">RAPPELS ACTIFS</div>
+      <div class="rm-set-reminders" id="rmExistingList"></div>
+    </div>
+    <div style="font-size:.72rem;color:var(--muted);margin-bottom:.6rem;font-family:'Share Tech Mono',monospace">AJOUTER UN RAPPEL</div>
+    <div class="rm-options" id="rmOptions">
+      <div class="rm-opt" data-minutes="60" onclick="rmSelectOption(this)">
+        1h avant
+        <div class="rm-opt-label">clôture des paris</div>
+      </div>
+      <div class="rm-opt" data-minutes="120" onclick="rmSelectOption(this)">
+        2h avant
+        <div class="rm-opt-label">clôture des paris</div>
+      </div>
+      <div class="rm-opt" data-minutes="360" onclick="rmSelectOption(this)">
+        6h avant
+        <div class="rm-opt-label">clôture des paris</div>
+      </div>
+      <div class="rm-opt" data-minutes="1440" onclick="rmSelectOption(this)">
+        24h avant
+        <div class="rm-opt-label">clôture des paris</div>
+      </div>
+    </div>
+    <div class="rm-actions">
+      <button class="rm-cancel" onclick="closeReminderModal()">Annuler</button>
+      <button class="rm-confirm" id="rmConfirmBtn" onclick="confirmReminder()" disabled>🔔 Activer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== REMINDER SYSTEM =====
+let rmCurrentRaceId = null;
+let rmSelectedMinutes = null;
+// Storage key: 'reminders' → { raceId: [{minutesBefore, timeoutId, scheduledAt}] }
+const RM_KEY = 'vp_reminders';
+
+function getReminderStore() {
+  try { return JSON.parse(localStorage.getItem(RM_KEY) || '{}'); } catch(e) { return {}; }
+}
+function setReminderStore(obj) {
+  localStorage.setItem(RM_KEY, JSON.stringify(obj));
+}
+
+function getReminderActive(raceId) {
+  const store = getReminderStore();
+  return !!(store[raceId] && store[raceId].length);
+}
+
+function updateReminderBtnState(raceId) {
+  const btn = document.getElementById('remBtn_' + raceId);
+  if(!btn) return;
+  if(getReminderActive(raceId)) {
+    btn.classList.add('active');
+    btn.innerHTML = '🔔 Rappel ✓';
+  } else {
+    btn.classList.remove('active');
+    btn.innerHTML = '🔔 Rappel';
+  }
+}
+
+window.openReminderModal = function(raceId) {
+  rmCurrentRaceId = raceId;
+  rmSelectedMinutes = null;
+
+  // Find the race
+  const race = (window.ALL_RACES || []).find(r => r.id === raceId);
+  const raceName = race ? 'Grand Prix de ' + race.name : 'Grand Prix';
+  document.getElementById('rmRaceName').textContent = raceName;
+
+  // Reset options
+  document.querySelectorAll('.rm-opt').forEach(o => o.classList.remove('selected'));
+  document.getElementById('rmConfirmBtn').disabled = true;
+
+  // Check notification permission
+  const warning = document.getElementById('rmNotifWarning');
+  if('Notification' in window && Notification.permission === 'denied') {
+    warning.style.display = 'block';
+  } else {
+    warning.style.display = 'none';
+  }
+
+  // Show existing reminders
+  renderExistingReminders(raceId, race);
+
+  document.getElementById('reminderModal').classList.add('open');
+};
+
+window.closeReminderModal = function() {
+  document.getElementById('reminderModal').classList.remove('open');
+  rmCurrentRaceId = null;
+  rmSelectedMinutes = null;
+};
+
+function renderExistingReminders(raceId, race) {
+  const store = getReminderStore();
+  const reminders = store[raceId] || [];
+  const wrap = document.getElementById('rmExistingWrap');
+  const list = document.getElementById('rmExistingList');
+  if(!reminders.length) { wrap.style.display = 'none'; return; }
+  wrap.style.display = 'block';
+  list.innerHTML = reminders.map((r, i) => {
+    const deadlineMs = race ? new Date(race.quali).getTime() : 0;
+    const fireAt = deadlineMs - r.minutesBefore * 60000;
+    const label = r.minutesBefore >= 60 ? (r.minutesBefore/60)+'h' : r.minutesBefore+'min';
+    const timeStr = fireAt ? new Date(fireAt).toLocaleString('fr-FR',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '';
+    return `<div class="rm-existing">
+      <span>🔔 ${label} avant clôture <span style="color:var(--muted);font-size:.7rem">(${timeStr})</span></span>
+      <button class="rm-del-btn" onclick="deleteReminder('${raceId}',${i})" title="Supprimer">✕</button>
+    </div>`;
+  }).join('');
+}
+
+window.rmSelectOption = function(el) {
+  document.querySelectorAll('.rm-opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  rmSelectedMinutes = parseInt(el.dataset.minutes);
+  document.getElementById('rmConfirmBtn').disabled = false;
+};
+
+window.confirmReminder = async function() {
+  if(!rmCurrentRaceId || !rmSelectedMinutes) return;
+
+  // Request notification permission if needed
+  if('Notification' in window && Notification.permission === 'default') {
+    const perm = await Notification.requestPermission();
+    if(perm === 'denied') {
+      document.getElementById('rmNotifWarning').style.display = 'block';
+      return;
+    }
+  }
+
+  const race = (window.ALL_RACES || []).find(r => r.id === rmCurrentRaceId);
+  if(!race) { toast('❌ Course introuvable', false); return; }
+
+  const deadlineMs = new Date(race.quali).getTime();
+  const fireAt = deadlineMs - rmSelectedMinutes * 60000;
+  const msUntilFire = fireAt - Date.now();
+
+  if(msUntilFire <= 0) {
+    toast('⚠️ Ce rappel est déjà passé', false);
+    return;
+  }
+
+  // Save to store
+  const store = getReminderStore();
+  if(!store[rmCurrentRaceId]) store[rmCurrentRaceId] = [];
+
+  // Check for duplicate
+  const alreadyExists = store[rmCurrentRaceId].some(r => r.minutesBefore === rmSelectedMinutes);
+  if(alreadyExists) { toast('⚠️ Rappel déjà configuré', false); return; }
+
+  store[rmCurrentRaceId].push({ minutesBefore: rmSelectedMinutes, scheduledAt: Date.now() });
+  setReminderStore(store);
+
+  // Schedule the notification
+  scheduleReminderNotification(race, rmSelectedMinutes, msUntilFire);
+
+  updateReminderBtnState(rmCurrentRaceId);
+  const label = rmSelectedMinutes >= 60 ? (rmSelectedMinutes/60)+'h' : rmSelectedMinutes+'min';
+  toast('🔔 Rappel activé — ' + label + ' avant clôture !', true);
+  closeReminderModal();
+};
+
+function scheduleReminderNotification(race, minutesBefore, msUntilFire) {
+  setTimeout(() => {
+    const sport = race.sport === 'f1' ? '🏎️ F1' : '🏍️ MotoGP';
+    const label = minutesBefore >= 60 ? (minutesBefore/60)+'h' : minutesBefore+'min';
+    if('Notification' in window && Notification.permission === 'granted') {
+      new Notification('🔔 VP Prono — ' + sport, {
+        body: 'Grand Prix de ' + race.name + ' : clôture des paris dans ' + label + ' !',
+        icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🏁</text></svg>',
+        tag: 'vp-reminder-' + race.id + '-' + minutesBefore
+      });
+    }
+    // Also show an in-app toast
+    toast('🔔 Rappel : Paris pour le GP de ' + race.name + ' ferment dans ' + label + ' !', true);
+
+    // Remove from store after firing
+    const store = getReminderStore();
+    if(store[race.id]) {
+      store[race.id] = store[race.id].filter(r => r.minutesBefore !== minutesBefore);
+      if(!store[race.id].length) delete store[race.id];
+      setReminderStore(store);
+    }
+    updateReminderBtnState(race.id);
+  }, msUntilFire);
+}
+
+window.deleteReminder = function(raceId, index) {
+  const store = getReminderStore();
+  if(!store[raceId]) return;
+  store[raceId].splice(index, 1);
+  if(!store[raceId].length) delete store[raceId];
+  setReminderStore(store);
+  const race = (window.ALL_RACES || []).find(r => r.id === raceId);
+  renderExistingReminders(raceId, race);
+  updateReminderBtnState(raceId);
+  if(!getReminderActive(raceId)) {
+    const wrap = document.getElementById('rmExistingWrap');
+    if(wrap) wrap.style.display = 'none';
+  }
+};
+
+// Re-schedule reminders from localStorage on page load
+function restoreReminders() {
+  const store = getReminderStore();
+  Object.entries(store).forEach(([raceId, reminders]) => {
+    const race = (window.ALL_RACES || []).find(r => r.id === raceId);
+    if(!race) return;
+    reminders.forEach(rem => {
+      const deadlineMs = new Date(race.quali).getTime();
+      const fireAt = deadlineMs - rem.minutesBefore * 60000;
+      const msUntilFire = fireAt - Date.now();
+      if(msUntilFire > 0) {
+        scheduleReminderNotification(race, rem.minutesBefore, msUntilFire);
+      } else {
+        // Already past — clean up
+        deleteReminder(raceId, 0);
+      }
+    });
+    updateReminderBtnState(raceId);
+  });
+}
+
+// Run restore after state is loaded
+const _origOnStateLoaded = window.onStateLoaded;
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(restoreReminders, 1500);
+});
+
+// Close reminder modal on backdrop click
+document.getElementById('reminderModal').addEventListener('click', function(e) {
+  if(e.target === this) closeReminderModal();
+});
+</script>
+
+<!-- BADGE UNLOCK POPUP -->
+<div id="badgeUnlockPopup">
+  <div class="bup-icon" id="bupIcon">🏅</div>
+  <div class="bup-body">
+    <div class="bup-label">🎉 Succès débloqué !</div>
+    <div class="bup-name" id="bupName">Badge</div>
+    <div class="bup-desc" id="bupDesc">Description</div>
+  </div>
+</div>
+
+<script>
+// ===== BADGE SYSTEM =====
+// All module-scoped functions are accessed lazily via window.* to avoid timing issues.
+// The module exposes: window._moduleState, window._calcPts, window._totalPts, window.renderProfile
+// The module also calls window._badgeCheck(uid) inside refresh() on every Firestore update.
+
+function _getState(){ return window._moduleState || {}; }
+function calcPts(...a){ return window._calcPts ? window._calcPts(...a) : 0; }
+function totalPts(...a){ return window._totalPts ? window._totalPts(...a) : 0; }
+
+const BADGE_DEFS = [
+  // ── PARTICIPATION ──
+  { id:'first_bet',      icon:'🎯', name:'Premier Pari',     desc:'Déposer votre 1er pari',                     rarity:'common',    cat:'participation',
+    check:(uid,s)=> Object.keys(s.bets[uid]||{}).length >= 1 },
+  { id:'bet5',           icon:'📋', name:'Parieur Assidu',   desc:'Déposer 5 paris',                            rarity:'common',    cat:'participation',
+    check:(uid,s)=> Object.keys(s.bets[uid]||{}).length >= 5 },
+  { id:'bet15',          icon:'📊', name:'Parieur Pro',      desc:'Déposer 15 paris',                           rarity:'rare',      cat:'participation',
+    check:(uid,s)=> Object.keys(s.bets[uid]||{}).length >= 15 },
+  { id:'bet30',          icon:'🗂️', name:'Encyclopédiste',   desc:'Déposer 30 paris',                           rarity:'legendary', cat:'participation',
+    check:(uid,s)=> Object.keys(s.bets[uid]||{}).length >= 30 },
+  { id:'both_sports',    icon:'🏁', name:'Biathlon',         desc:'Paris sur F1 et MotoGP',                     rarity:'common',    cat:'participation',
+    check:(uid,s)=>{ const b=s.bets[uid]||{}; return Object.keys(b).some(r=>r.startsWith('f1_'))&&Object.keys(b).some(r=>r.startsWith('mgp_')); } },
+
+  // ── PERFORMANCE ──
+  { id:'first_win',      icon:'⭐', name:"Coup d'Éclat",     desc:'Marquer des points sur un pari',             rarity:'common',    cat:'performance',
+    check:(uid,s)=> (window.ALL_RACES||[]).some(r=>calcPts(s.bets[uid]?.[r.id],s.results[r.id])>0) },
+  { id:'perfect_podium', icon:'🥇', name:'Podium Parfait',   desc:'Top 3 exact sur une course (P1+P2+P3)',      rarity:'rare',      cat:'performance',
+    check:(uid,s)=> (window.ALL_RACES||[]).some(r=>{const b=s.bets[uid]?.[r.id],res=s.results[r.id]; return b&&res&&b.p1===res.p1&&b.p2===res.p2&&b.p3===res.p3&&res.p1;}) },
+  { id:'pole_hunter',    icon:'🔶', name:'Pole Prédicteur',  desc:'Prédire 3 poles positions correctes',        rarity:'rare',      cat:'performance',
+    check:(uid,s)=> (window.ALL_RACES||[]).filter(r=>{const b=s.bets[uid]?.[r.id],res=s.results[r.id]; return b&&res&&b.pole&&b.pole===res.pole;}).length>=3 },
+  { id:'fast_lap_ace',   icon:'⚡', name:'As du Chrono',     desc:'Prédire 3 meilleurs tours en course',        rarity:'rare',      cat:'performance',
+    check:(uid,s)=> (window.ALL_RACES||[]).filter(r=>{const b=s.bets[uid]?.[r.id],res=s.results[r.id]; return b&&res&&b.fl&&b.fl===res.fl;}).length>=3 },
+  { id:'streak3',        icon:'🔥', name:'En Feu',           desc:'Marquer des pts sur 3 courses consécutives', rarity:'rare',      cat:'performance',
+    check:(uid,s)=>{
+      const races=(window.ALL_RACES||[]).filter(r=>s.results[r.id]?.p1).sort((a,b)=>new Date(a.date)-new Date(b.date));
+      let streak=0,best=0;
+      for(const r of races){if(calcPts(s.bets[uid]?.[r.id],s.results[r.id])>0){streak++;best=Math.max(best,streak);}else streak=0;}
+      return best>=3;
+    } },
+  { id:'max_race_pts',   icon:'💎', name:'Score Parfait',    desc:'Marquer 17+ points sur une seule course',    rarity:'legendary', cat:'performance',
+    check:(uid,s)=> (window.ALL_RACES||[]).some(r=>calcPts(s.bets[uid]?.[r.id],s.results[r.id])>=17) },
+  { id:'top100pts',      icon:'🏆', name:'Centurion',        desc:'Atteindre 100 points totaux',                rarity:'rare',      cat:'performance',
+    check:(uid,s)=> totalPts(uid)>=100 },
+  { id:'top250pts',      icon:'👑', name:'Roi du Prono',     desc:'Atteindre 250 points totaux',                rarity:'legendary', cat:'performance',
+    check:(uid,s)=> totalPts(uid)>=250 },
+
+  // ── CLASSEMENT ──
+  { id:'rank1',          icon:'🥇', name:'N°1',              desc:'Être 1er au classement (min. 3 parieurs)',   rarity:'legendary', cat:'classement',
+    check:(uid,s)=>{
+      const others=s.users.filter(u=>u.id!==uid);
+      if(others.length<2) return false;
+      return totalPts(uid)>Math.max(...others.map(u=>totalPts(u.id)));
+    } },
+  { id:'rank_podium',    icon:'🎖️', name:'Sur le Podium',    desc:'Être dans le top 3 (min. 4 parieurs)',      rarity:'rare',      cat:'classement',
+    check:(uid,s)=>{
+      if(s.users.length<4) return false;
+      const sorted=[...s.users].sort((a,b)=>totalPts(b.id)-totalPts(a.id));
+      return sorted.findIndex(u=>u.id===uid)<3;
+    } },
+
+  // ── SPRINT ──
+  { id:'sprint_podium',  icon:'⚡', name:'Sprinteur',        desc:'Prédire au moins une position de sprint',    rarity:'common',    cat:'sprint',
+    check:(uid,s)=> (window.ALL_RACES||[]).some(r=>{const b=s.bets[uid]?.[r.id],res=s.results[r.id]; return b&&res&&(b.sp1===res.sp1||b.sp2===res.sp2||b.sp3===res.sp3)&&res.sp1;}) },
+  { id:'sprint_perfect', icon:'⚡⚡', name:'Sprint Parfait', desc:'Top 3 sprint exact sur une course',          rarity:'rare',      cat:'sprint',
+    check:(uid,s)=> (window.ALL_RACES||[]).some(r=>{const b=s.bets[uid]?.[r.id],res=s.results[r.id]; return b&&res&&b.sp1===res.sp1&&b.sp2===res.sp2&&b.sp3===res.sp3&&res.sp1;}) },
+
+  // ── SAISON ──
+  { id:'season_champ',   icon:'🏆', name:'Oracle Saison',   desc:'Prédire le champion de la saison',           rarity:'legendary', cat:'saison',
+    check:(uid,s)=>{const sb=s.users.find(u=>u.id===uid)?.seasonBets,sr=s.seasonResults; return sb&&sr&&(sb.f1Champ===sr.f1Champ||sb.mgpChamp===sr.mgpChamp);} },
+  { id:'season_team',    icon:'🏗️', name:'Stratège',        desc:"Prédire l'équipe championne",               rarity:'rare',      cat:'saison',
+    check:(uid,s)=>{const sb=s.users.find(u=>u.id===uid)?.seasonBets,sr=s.seasonResults; return sb&&sr&&(sb.f1Team===sr.f1Team||sb.mgpTeam===sr.mgpTeam);} },
+  { id:'double_season',  icon:'🌟', name:'Grand Chelem',    desc:'Champion + équipe corrects sur une série',   rarity:'legendary', cat:'saison',
+    check:(uid,s)=>{const sb=s.users.find(u=>u.id===uid)?.seasonBets,sr=s.seasonResults; return sb&&sr&&((sb.f1Champ===sr.f1Champ&&sb.f1Team===sr.f1Team)||(sb.mgpChamp===sr.mgpChamp&&sb.mgpTeam===sr.mgpTeam));} },
+
+  // ── SECRETS ──
+  { id:'underdog',       icon:'🐴', name:'Outsider',        desc:'???',                                        rarity:'rare',      cat:'secret', secret:true,
+    check:(uid,s)=> (window.ALL_RACES||[]).filter(r=>s.results[r.id]?.p1).some(r=>{
+      const b=s.bets[uid]?.[r.id],res=s.results[r.id];
+      return b&&b.p1===res.p1&&res.p1!==res.pole;
+    }) },
+  { id:'night_race',     icon:'🌙', name:'Renard de Nuit',  desc:'???',                                        rarity:'rare',      cat:'secret', secret:true,
+    check:(uid,s)=>['f1_r22','f1_r18','f1_r05','mgp_r03'].some(rid=>s.bets[uid]?.[rid]) },
+  { id:'zero_miss',      icon:'🎰', name:'Sans Faute',      desc:'???',                                        rarity:'legendary', cat:'secret', secret:true,
+    check:(uid,s)=>{
+      const done=(window.ALL_RACES||[]).filter(r=>s.results[r.id]?.p1&&s.bets[uid]?.[r.id]);
+      return done.length>=5&&done.every(r=>calcPts(s.bets[uid][r.id],s.results[r.id])>0);
+    } },
+];
+
+const BADGE_STORE_KEY = 'vp_badges';
+function getBadgeStore(){ try{return JSON.parse(localStorage.getItem(BADGE_STORE_KEY)||'{}');}catch(e){return {};} }
+function setBadgeStore(obj){ localStorage.setItem(BADGE_STORE_KEY, JSON.stringify(obj)); }
+
+function getUnlockedBadgeIds(uid){
+  const raw=getBadgeStore()[uid]||[];
+  return raw.map(x=>typeof x==='string'?x:x.id);
+}
+
+function getUnlockedBadgeDate(uid, badgeId){
+  const raw=getBadgeStore()[uid]||[];
+  const entry=raw.find(x=>(typeof x==='string'?x:x.id)===badgeId);
+  if(!entry||typeof entry==='string') return null;
+  return new Date(entry.date).toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'});
+}
+
+function checkAndAwardBadges(uid){
+  if(!uid) return [];
+  const store=getBadgeStore();
+  const already=getUnlockedBadgeIds(uid);
+  const newBadges=[];
+  for(const def of BADGE_DEFS){
+    if(already.includes(def.id)) continue;
+    try{ if(def.check(uid,_getState())) newBadges.push(def); }catch(e){}
+  }
+  if(newBadges.length){
+    const now=new Date().toISOString();
+    if(!store[uid]) store[uid]=[];
+    newBadges.forEach(b=>store[uid].push({id:b.id,date:now}));
+    setBadgeStore(store);
+  }
+  return newBadges;
+}
+
+// Badge unlock popup queue
+let _bupQueue=[], _bupActive=false;
+function showBadgePopup(def){
+  _bupQueue.push(def);
+  if(!_bupActive) _processBupQueue();
+}
+function _processBupQueue(){
+  if(!_bupQueue.length){_bupActive=false;return;}
+  _bupActive=true;
+  const def=_bupQueue.shift();
+  const popup=document.getElementById('badgeUnlockPopup');
+  document.getElementById('bupIcon').textContent=def.icon;
+  document.getElementById('bupName').textContent=def.name;
+  document.getElementById('bupDesc').textContent=def.secret?'Succès secret débloqué !':def.desc;
+  popup.classList.add('show');
+  setTimeout(()=>{ popup.classList.remove('show'); setTimeout(_processBupQueue,400); },3800);
+}
+
+function triggerBadgeCheck(uid){
+  if(!uid) return;
+  const newBadges=checkAndAwardBadges(uid);
+  newBadges.forEach((b,i)=>setTimeout(()=>showBadgePopup(b),i*600));
+  if(newBadges.length){ const pg=document.getElementById('page-profile'); if(pg?.classList.contains('active')) renderBadges(uid); }
+}
+
+let _badgeFilter='all';
+window.filterBadges=function(filter,btn){
+  _badgeFilter=filter;
+  document.querySelectorAll('.bft-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  const uid=window.viewingProfileUserId||_getState().currentUser;
+  if(uid) renderBadges(uid);
+};
+
+function renderBadges(uid){
+  const grid=document.getElementById('badgesGrid');
+  const fill=document.getElementById('badgesProgressFill');
+  const cnt=document.getElementById('badgesProgressCount');
+  if(!grid) return;
+  const unlockedIds=getUnlockedBadgeIds(uid);
+  const total=BADGE_DEFS.length, unlocked=unlockedIds.length;
+  if(fill) fill.style.width=Math.round(unlocked/total*100)+'%';
+  if(cnt) cnt.textContent=unlocked+'/'+total;
+
+  let defs=BADGE_DEFS;
+  if(_badgeFilter==='unlocked') defs=BADGE_DEFS.filter(d=>unlockedIds.includes(d.id));
+  else if(_badgeFilter==='locked') defs=BADGE_DEFS.filter(d=>!unlockedIds.includes(d.id));
+  else if(_badgeFilter==='common') defs=BADGE_DEFS.filter(d=>d.rarity==='common');
+  else if(_badgeFilter==='rare') defs=BADGE_DEFS.filter(d=>d.rarity==='rare');
+  else if(_badgeFilter==='legendary') defs=BADGE_DEFS.filter(d=>d.rarity==='legendary');
+
+  const rarityLabel={common:'Commun',rare:'Rare',legendary:'Légendaire'};
+  grid.innerHTML=defs.map(def=>{
+    const isUnlocked=unlockedIds.includes(def.id);
+    const dateStr=isUnlocked?getUnlockedBadgeDate(uid,def.id):null;
+    const isSecret=def.secret&&!isUnlocked;
+    return `<div class="badge-card ${def.rarity} ${isUnlocked?'unlocked':'locked'}" title="${isSecret?'Succès secret':def.desc}">
+      <div class="badge-shine"></div>
+      <div class="badge-icon">${isSecret?'❓':def.icon}</div>
+      <div class="badge-name">${isSecret?'???':def.name}</div>
+      <div class="badge-desc">${isSecret?'Succès secret à découvrir':def.desc}</div>
+      <div class="badge-rarity ${def.rarity}">${rarityLabel[def.rarity]}</div>
+      ${dateStr?`<div class="badge-date">🗓️ ${dateStr}</div>`:''}
+    </div>`;
+  }).join('');
+
+  if(!defs.length){
+    grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--muted);padding:2rem;font-family:\'Share Tech Mono\',monospace;font-size:.82rem">Aucun badge dans cette catégorie.</div>';
+  }
+}
+
+// ── SCAN SILENCIEUX ──
+// Appelé au login : attribue tous les badges mérités sans popup (courses passées)
+// puis active les popups pour les futurs nouveaux badges
+window._badgeSilentScan = function(uid) {
+  if(!uid) return;
+  // Attendre que tous les snapshots Firebase soient arrivés (petit délai)
+  setTimeout(() => {
+    checkAndAwardBadges(uid); // attribue sans popup
+    renderBadges(uid);        // affiche l'état réel
+    // Activer le mode "popup" pour les prochains badges (après login)
+    window._badgePopupsEnabled = true;
+  }, 1200);
+};
+
+// ── CHECK AVEC POPUP (post-login uniquement) ──
+window._badgeCheck = function(uid) {
+  if(!uid) return;
+  const newBadges = checkAndAwardBadges(uid);
+  if(window._badgePopupsEnabled && newBadges.length) {
+    newBadges.forEach((b, i) => setTimeout(() => showBadgePopup(b), i * 700));
+  }
+  // Refresh grille si profil ouvert
+  const profilePage = document.getElementById('page-profile');
+  if(profilePage && profilePage.classList.contains('active')) {
+    const viewingUid = window.viewingProfileUserId || _getState().currentUser;
+    if(!viewingUid || viewingUid === uid) renderBadges(uid);
+  }
+};
+
+// ── WRAP window.renderProfile (lazy, après que le module ait tourné) ──
+window.addEventListener('load', () => {
+  const _orig = window.renderProfile;
+  window.renderProfile = function() {
+    if(_orig) _orig();
+    const uid = window.viewingProfileUserId || _getState().currentUser;
+    if(uid) renderBadges(uid);
+  };
+
+  // Wrap saveBet
+  const _origSaveBet = window.saveBet;
+  if(_origSaveBet) {
+    window.saveBet = async function(...args) {
+      await _origSaveBet.apply(this, args);
+      const uid = _getState().currentUser;
+      if(uid) window._badgeCheck(uid);
+    };
+  }
+
+  // Wrap saveResult — check tous les users
+  const _origSaveResult = window.saveResult;
+  if(_origSaveResult) {
+    window.saveResult = async function(...args) {
+      await _origSaveResult.apply(this, args);
+      const uid = _getState().currentUser;
+      if(uid) window._badgeCheck(uid);
+    };
+  }
+});
+
+</script>
+
 </body>
 </html>
+
