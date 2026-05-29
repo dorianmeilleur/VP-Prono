@@ -2434,17 +2434,13 @@ window.openBetModal = raceId => {
   if(!gpClosed && !hasRes) subText += '  •  🔒 GP: '+fmtDeadline(race);
   document.getElementById('modalRaceSub').textContent = subText;
 
-  // Show/hide sprint section
+  // Show/hide sprint section — masquée complètement si paris sprint clos
   const sprintSec = document.getElementById('sprintBetSection');
-  if(hasSprint) {
+  if(hasSprint && !sprintClosed) {
     sprintSec.style.display = '';
     const spInfo = document.getElementById('sprintDeadlineInfo');
-    if(!sprintClosed) {
-      const fmtSprintQuali = new Date(race.sprintQuali).toLocaleString('fr-FR',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit',timeZone:'Europe/Paris'});
-      spInfo.textContent = '🔒 Clôture avant Qualifs Sprint : '+fmtSprintQuali;
-    } else {
-      spInfo.textContent = '🔒 Paris sprint clos';
-    }
+    const fmtSprintQuali = new Date(race.sprintQuali).toLocaleString('fr-FR',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit',timeZone:'Europe/Paris'});
+    spInfo.textContent = '🔒 Clôture avant Qualifs Sprint : '+fmtSprintQuali;
   } else {
     sprintSec.style.display = 'none';
   }
@@ -2502,10 +2498,15 @@ window.openBetModal = raceId => {
     banner.style.display='none';
   }
 
-  // Others' bets — show sprint + GP for sprint weekends after lock
+  // Others' bets — révèle uniquement les sections dont les paris sont effectivement clos.
+  // Sprint révélé si sprintClosed (ou pas de sprint), GP révélé si gpClosed.
+  // Si rien n'est encore clos, on masque tout et on affiche le message "paris masqués".
   const sec = document.getElementById('othersBetsSection');
-  const revealOthers = allClosed || hasRes;
-  if(revealOthers) {
+  const revealSprint = !hasSprint || sprintClosed || hasRes;
+  const revealGP     = gpClosed || hasRes;
+  const revealAny    = revealSprint || revealGP;
+
+  if(revealAny) {
     const others = state.users.filter(u=>u.id!==uid && state.bets[u.id] && state.bets[u.id][raceId]);
     if(others.length) {
       sec.style.display='block';
@@ -2519,6 +2520,7 @@ window.openBetModal = raceId => {
         return '<span class="oba-drv">'+img+short+'</span>';
       };
       const drvSep = '<span class="oba-sep">/</span>';
+      const hiddenChip = '<span class="oba-drv" style="color:var(--muted);font-style:italic;font-size:.75rem">🔒 masqué</span>';
       document.getElementById('othersBetsList').innerHTML = others.map(u=>{
         const ob = state.bets[u.id][raceId];
         const sp = raceSport === 'f1' ? u.photoF1 : u.photoMotoGP;
@@ -2528,13 +2530,21 @@ window.openBetModal = raceId => {
           : '<div class="oba-avatar">'+u.name[0].toUpperCase()+'</div>';
         let blocks = '';
         if(hasSprint) {
-          blocks += '<div class="oba-block"><span class="oba-block-label">⚡</span><span class="oba-drivers">'
-            +drvMini(ob.sp1)+drvSep+drvMini(ob.sp2)+drvSep+drvMini(ob.sp3)+'</span></div>';
+          // Sprint révélé seulement si sprintClosed
+          const sprintContent = revealSprint
+            ? drvMini(ob.sp1)+drvSep+drvMini(ob.sp2)+drvSep+drvMini(ob.sp3)
+            : hiddenChip;
+          blocks += '<div class="oba-block"><span class="oba-block-label">⚡</span><span class="oba-drivers">'+sprintContent+'</span></div>';
         }
-        const podiumBlock = '<div class="oba-block"><span class="oba-block-label">🏁</span><span class="oba-drivers">'
-          +drvMini(ob.p1)+drvSep+drvMini(ob.p2)+drvSep+drvMini(ob.p3)+'</span></div>';
-        const poleBlock = '<div class="oba-block"><span class="oba-block-label">Pole</span><span class="oba-drivers">'+drvMini(ob.pole)+'</span></div>';
-        const flBlock = '<div class="oba-block"><span class="oba-block-label">FL</span><span class="oba-drivers">'+drvMini(ob.fl)+'</span></div>';
+        // GP révélé seulement si gpClosed
+        const podiumContent = revealGP
+          ? drvMini(ob.p1)+drvSep+drvMini(ob.p2)+drvSep+drvMini(ob.p3)
+          : hiddenChip;
+        const podiumBlock = '<div class="oba-block"><span class="oba-block-label">🏁</span><span class="oba-drivers">'+podiumContent+'</span></div>';
+        const poleContent  = revealGP ? drvMini(ob.pole) : hiddenChip;
+        const flContent    = revealGP ? drvMini(ob.fl)   : hiddenChip;
+        const poleBlock = '<div class="oba-block"><span class="oba-block-label">Pole</span><span class="oba-drivers">'+poleContent+'</span></div>';
+        const flBlock   = '<div class="oba-block"><span class="oba-block-label">FL</span><span class="oba-drivers">'+flContent+'</span></div>';
         const row1 = blocks + podiumBlock;
         const row2 = poleBlock + flBlock;
         return '<div class="other-bet-row">'+avHtml+'<div class="oba-body"><div class="oba-name">'+u.name+'</div><div class="oba-preds"><div class="oba-row1">'+row1+'</div><div class="oba-row2">'+row2+'</div></div></div></div>';
@@ -3233,13 +3243,15 @@ function renderMyBets(){
   document.getElementById('myBetsList').innerHTML=entries.map(([rid,bet])=>{
     const race=ALL_RACES.find(r=>r.id===rid); if(!race) return '';
     const res=state.results[rid];
-    const now = new Date();
-    const qualiDate = new Date(race.quali);
-    const votesAreClosed = now >= qualiDate;
+    const hasSprint = !!race.sprint;
+    const sprintClosed = isSprintBettingClosed(race);
+    const gpClosed = isGPBettingClosed(race);
+    const revealSprint = !hasSprint || sprintClosed || !!res;
+    const revealGP     = gpClosed || !!res;
     
-    // Si ce n'est pas notre propre profil ET que les votes ne sont pas encore clos
-    // alors on cache le pronostic
-    if(!isOwnProfile && !votesAreClosed){
+    // Si ce n'est pas notre propre profil, on n'affiche que les sections clos
+    if(!isOwnProfile && !revealGP && !revealSprint){
+      // Rien n'est encore clos → masquage total
       const badgeCls = race.sport==='f1'?'f1-badge':'mgp-badge';
       const badgeIcon = race.sport==='f1'?'🏎️':'🏍️';
       return `<div class="mb-card" style="flex-direction:column;align-items:stretch">
@@ -3257,7 +3269,33 @@ function renderMyBets(){
         </div>
       </div>`;
     }
-    
+
+    if(!isOwnProfile && revealSprint && !revealGP && hasSprint){
+      // Seul le sprint est clos : on affiche le sprint mais masque le GP
+      const badgeCls = race.sport==='f1'?'f1-badge':'mgp-badge';
+      const badgeIcon = race.sport==='f1'?'🏎️':'🏍️';
+      const driverName = id => {
+        const d = (race.sport==='f1'?F1_DRIVERS:MOTOGP_RIDERS).find(x=>x.id===id);
+        return d ? d.name.split(' ')[0] : (id||'?');
+      };
+      const sprintPred = `⚡ ${driverName(bet.sp1)} / ${driverName(bet.sp2)} / ${driverName(bet.sp3)}`;
+      return `<div class="mb-card" style="flex-direction:column;align-items:stretch">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem">
+          <div>
+            <div class="mb-race" style="display:flex;align-items:center;gap:.5rem">
+              <span class="sport-badge ${badgeCls}">${badgeIcon} ${race.sport==='f1'?'F1':'MotoGP'}</span>
+              GP ${race.name}
+            </div>
+            <div class="mb-pred">${sprintPred}</div>
+            <div class="mb-pred" style="color:var(--muted);font-style:italic;font-size:.8rem;margin-top:.2rem">🔒 Pronostic GP masqué (qualifs pas encore clos)</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:.75rem;flex-shrink:0">
+            <div class="mb-status pending">Sprint clos</div>
+          </div>
+        </div>
+      </div>`;
+    }
+
     const p=res?calcPts(bet,res):null;
     const badgeCls = race.sport==='f1'?'f1-badge':'mgp-badge';
     const badgeIcon = race.sport==='f1'?'🏎️':'🏍️';
