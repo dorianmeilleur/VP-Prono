@@ -1861,68 +1861,75 @@ const MOTOGP_RIDERS = [
   {id:'MMA', name:'M.Márquez #93'},
 ];
 
-// quali    = début des qualifications GP (samedi) → deadline paris GP
-// sprintQuali = début de la Sprint Qualifying (vendredi) → deadline paris Sprint
-// sprint  = GP avec course sprint (booléen)
+// ===== CALENDRIERS 2026 (vérifiés le 20/11/2026) =====
+// Toutes les heures sont en UTC (suffixe Z) ; l'affichage est converti en heure de Paris.
+// F1 :
+//   quali       = début des qualifications GP (samedi)            → clôture paris GP (pole, podium, meilleur tour)
+//   sprintQuali = début de la Sprint Qualifying (vendredi)        → clôture paris Sprint
+//   sprint      = week-end avec course sprint (booléen)
+// Changements 2026 : GP de Bahreïn (avril) et d'Arabie Saoudite annulés (guerre au Moyen-Orient) ;
+//   Bahreïn rejoué à Sepang (Malaisie) du 2 au 4 octobre ; GP d'Azerbaïdjan couru le SAMEDI 26/09.
 const F1_RACES = [
-  {id:'f1_r01',sport:'f1',round:1, name:"Australie",          circuit:'Albert Park',                   date:'2026-03-08', quali:'2026-03-07T05:00:00Z'},
-  {id:'f1_r02',sport:'f1',round:2, name:"Chine",              circuit:'Shanghai International',        date:'2026-03-15', quali:'2026-03-14T07:00:00Z',  sprint:true, sprintQuali:'2026-03-13T07:30:00Z'},
-  {id:'f1_r03',sport:'f1',round:3, name:"Japon",              circuit:'Suzuka',                        date:'2026-03-29', quali:'2026-03-28T06:00:00Z'},
-  {id:'f1_r04',sport:'f1',round:4, name:"Bahreïn",            circuit:'Bahrain International',         date:'2026-04-12', quali:'2026-04-11T13:00:00Z'},
-  {id:'f1_r05',sport:'f1',round:5, name:"Arabie Saoudite",    circuit:'Jeddah Corniche',               date:'2026-04-19', quali:'2026-04-18T16:00:00Z'},
-  {id:'f1_r06',sport:'f1',round:6, name:"Miami",              circuit:'Miami International Autodrome', date:'2026-05-03', quali:'2026-05-02T20:00:00Z',  sprint:true, sprintQuali:'2026-05-01T20:30:00Z'},
-  {id:'f1_r07',sport:'f1',round:7, name:"Canada",             circuit:'Gilles Villeneuve',             date:'2026-05-24', quali:'2026-05-23T20:00:00Z',  sprint:true, sprintQuali:'2026-05-22T20:30:00Z'},
-  {id:'f1_r08',sport:'f1',round:8, name:"Monaco",             circuit:'Circuit de Monaco',             date:'2026-06-07', quali:'2026-06-06T14:00:00Z'},
-  {id:'f1_r09',sport:'f1',round:9, name:"Barcelone-Catalogne",circuit:'Circuit de Barcelone',          date:'2026-06-14', quali:'2026-06-13T13:00:00Z'},
-  {id:'f1_r10',sport:'f1',round:10,name:"Autriche",           circuit:'Red Bull Ring',                 date:'2026-06-28', quali:'2026-06-27T13:00:00Z'},
-  {id:'f1_r11',sport:'f1',round:11,name:"Grande-Bretagne",    circuit:'Silverstone',                   date:'2026-07-05', quali:'2026-07-04T16:00:00Z',  sprint:true, sprintQuali:'2026-07-03T16:30:00Z'},
-  {id:'f1_r12',sport:'f1',round:12,name:"Belgique",           circuit:'Spa-Francorchamps',             date:'2026-07-19', quali:'2026-07-18T13:00:00Z'},
-  {id:'f1_r13',sport:'f1',round:13,name:"Hongrie",            circuit:'Hungaroring',                   date:'2026-07-26', quali:'2026-07-25T13:00:00Z'},
-  {id:'f1_r14',sport:'f1',round:14,name:"Pays-Bas",           circuit:'Zandvoort',                     date:'2026-08-23', quali:'2026-08-22T14:00:00Z',  sprint:true, sprintQuali:'2026-08-21T14:30:00Z'},
-  {id:'f1_r15',sport:'f1',round:15,name:"Italie",             circuit:'Monza',                         date:'2026-09-06', quali:'2026-09-05T13:00:00Z'},
-  {id:'f1_r16',sport:'f1',round:16,name:"Espagne",            circuit:'Circuit Urbain de Madrid',      date:'2026-09-13', quali:'2026-09-12T13:00:00Z'},
-  {id:'f1_r17',sport:'f1',round:17,name:"Azerbaïdjan",        circuit:'Baku City Circuit',             date:'2026-09-26', quali:'2026-09-25T11:00:00Z'},
-  {id:'f1_r18',sport:'f1',round:18,name:"Singapour",          circuit:'Marina Bay Street Circuit',     date:'2026-10-11', quali:'2026-10-10T07:00:00Z',  sprint:true, sprintQuali:'2026-10-09T12:30:00Z'},
-  {id:'f1_r19',sport:'f1',round:19,name:"États-Unis",         circuit:'Circuit of the Americas',       date:'2026-10-25', quali:'2026-10-24T21:00:00Z'},
-  {id:'f1_r20',sport:'f1',round:20,name:"Mexique",            circuit:'Autodromo Hermanos Rodriguez',  date:'2026-11-01', quali:'2026-10-31T21:00:00Z'},
-  {id:'f1_r21',sport:'f1',round:21,name:"São Paulo",          circuit:'Interlagos',                    date:'2026-11-08', quali:'2026-11-07T18:00:00Z'},
-  {id:'f1_r22',sport:'f1',round:22,name:"Las Vegas",          circuit:'Las Vegas Strip Circuit',       date:'2026-11-22', quali:'2026-11-22T06:00:00Z'},
-  {id:'f1_r23',sport:'f1',round:23,name:"Qatar",              circuit:'Losail International',          date:'2026-11-29', quali:'2026-11-28T13:00:00Z'},
-  {id:'f1_r24',sport:'f1',round:24,name:"Abu Dhabi",          circuit:'Yas Marina',                    date:'2026-12-06', quali:'2026-12-05T11:00:00Z'},
+  {id:'f1_r01',sport:'f1',round:1,name:"Australie",circuit:'Albert Park',date:'2026-03-08',quali:'2026-03-07T05:00:00Z'},
+  {id:'f1_r02',sport:'f1',round:2,name:"Chine",circuit:'Shanghai International',date:'2026-03-15',quali:'2026-03-14T07:00:00Z',sprint:true,sprintQuali:'2026-03-13T07:30:00Z'},
+  {id:'f1_r03',sport:'f1',round:3,name:"Japon",circuit:'Suzuka',date:'2026-03-29',quali:'2026-03-28T06:00:00Z'},
+  {id:'f1_r06',sport:'f1',round:4,name:"Miami",circuit:'Miami International Autodrome',date:'2026-05-03',quali:'2026-05-02T20:00:00Z',sprint:true,sprintQuali:'2026-05-01T20:30:00Z'},
+  {id:'f1_r07',sport:'f1',round:5,name:"Canada",circuit:'Gilles Villeneuve',date:'2026-05-24',quali:'2026-05-23T20:00:00Z',sprint:true,sprintQuali:'2026-05-22T20:30:00Z'},
+  {id:'f1_r08',sport:'f1',round:6,name:"Monaco",circuit:'Circuit de Monaco',date:'2026-06-07',quali:'2026-06-06T14:00:00Z'},
+  {id:'f1_r09',sport:'f1',round:7,name:"Barcelone-Catalogne",circuit:'Circuit de Barcelone',date:'2026-06-14',quali:'2026-06-13T14:00:00Z'},
+  {id:'f1_r10',sport:'f1',round:8,name:"Autriche",circuit:'Red Bull Ring',date:'2026-06-28',quali:'2026-06-27T14:00:00Z'},
+  {id:'f1_r11',sport:'f1',round:9,name:"Grande-Bretagne",circuit:'Silverstone',date:'2026-07-05',quali:'2026-07-04T15:00:00Z',sprint:true,sprintQuali:'2026-07-03T15:30:00Z'},
+  {id:'f1_r12',sport:'f1',round:10,name:"Belgique",circuit:'Spa-Francorchamps',date:'2026-07-19',quali:'2026-07-18T14:00:00Z'},
+  {id:'f1_r13',sport:'f1',round:11,name:"Hongrie",circuit:'Hungaroring',date:'2026-07-26',quali:'2026-07-25T14:00:00Z'},
+  {id:'f1_r14',sport:'f1',round:12,name:"Pays-Bas",circuit:'Zandvoort',date:'2026-08-23',quali:'2026-08-22T14:00:00Z',sprint:true,sprintQuali:'2026-08-21T14:30:00Z'},
+  {id:'f1_r15',sport:'f1',round:13,name:"Italie",circuit:'Monza',date:'2026-09-06',quali:'2026-09-05T14:00:00Z'},
+  {id:'f1_r16',sport:'f1',round:14,name:"Espagne",circuit:'Circuit Urbain de Madrid',date:'2026-09-13',quali:'2026-09-12T14:00:00Z'},
+  {id:'f1_r17',sport:'f1',round:15,name:"Azerbaïdjan",circuit:'Baku City Circuit',date:'2026-09-26',quali:'2026-09-25T12:00:00Z'},
+  {id:'f1_r04',sport:'f1',round:16,name:"Bahreïn (Malaisie)",circuit:'Sepang International Circuit',date:'2026-10-04',quali:'2026-10-03T08:00:00Z'},
+  {id:'f1_r18',sport:'f1',round:17,name:"Singapour",circuit:'Marina Bay Street Circuit',date:'2026-10-11',quali:'2026-10-10T13:00:00Z',sprint:true,sprintQuali:'2026-10-09T12:30:00Z'},
+  {id:'f1_r19',sport:'f1',round:18,name:"États-Unis",circuit:'Circuit of the Americas',date:'2026-10-25',quali:'2026-10-24T21:00:00Z'},
+  {id:'f1_r20',sport:'f1',round:19,name:"Mexique",circuit:'Autodromo Hermanos Rodriguez',date:'2026-11-01',quali:'2026-10-31T21:00:00Z'},
+  {id:'f1_r21',sport:'f1',round:20,name:"São Paulo",circuit:'Interlagos',date:'2026-11-08',quali:'2026-11-07T18:00:00Z'},
+  {id:'f1_r22',sport:'f1',round:21,name:"Las Vegas",circuit:'Las Vegas Strip Circuit',date:'2026-11-22',quali:'2026-11-21T04:00:00Z'},
+  {id:'f1_r23',sport:'f1',round:22,name:"Qatar",circuit:'Losail International',date:'2026-11-29',quali:'2026-11-28T18:00:00Z'},
+  {id:'f1_r24',sport:'f1',round:23,name:"Abu Dhabi",circuit:'Yas Marina',date:'2026-12-06',quali:'2026-12-05T14:00:00Z'},
 ];
 
-// MotoGP: TOUTES les courses ont un sprint.
-// sprintQuali = samedi matin ~10h30 heure locale (deadline paris sprint)
-// Sprint Race = samedi ~15h → deadline paris GP = sprintQuali (vendredi quali)
+// MotoGP : TOUTES les courses ont un sprint (samedi).
+//   sprintQuali = début de la Q1 (qualifications du samedi matin) → clôture paris Sprint
+//   quali       = début de la course Sprint (samedi après-midi)    → clôture paris GP
+// Changements 2026 : GP du Qatar reporté au 8 nov. (ex-12 avr.), Portugal au 22 nov., Valence au 29 nov.
+// Thaïlande (ouverture, 1er mars) ajoutée : elle manquait.
 const MOTOGP_RACES = [
-  {id:'mgp_r01',sport:'motogp',round:1, name:"Brésil",            circuit:'Autódromo de Goiânia',      date:'2026-03-22', quali:'2026-03-21T17:00:00Z', sprint:true, sprintQuali:'2026-03-21T13:30:00Z'}, // sam 14h BRT
-  {id:'mgp_r02',sport:'motogp',round:2, name:"Amériques",         circuit:'Circuit of the Americas',   date:'2026-03-29', quali:'2026-03-28T20:00:00Z', sprint:true, sprintQuali:'2026-03-28T16:30:00Z'}, // sam 15h CDT
-  {id:'mgp_r03',sport:'motogp',round:3, name:"Qatar",             circuit:'Losail International',      date:'2026-04-12', quali:'2026-04-11T12:00:00Z', sprint:true, sprintQuali:'2026-04-11T08:30:00Z'}, // sam 15h AST
-  {id:'mgp_r04',sport:'motogp',round:4, name:"Espagne",           circuit:'Circuito de Jerez',         date:'2026-04-26', quali:'2026-04-25T12:00:00Z', sprint:true, sprintQuali:'2026-04-25T08:30:00Z'}, // sam 14h CEST
-  {id:'mgp_r05',sport:'motogp',round:5, name:"France",            circuit:'Bugatti Circuit — Le Mans', date:'2026-05-10', quali:'2026-05-09T12:00:00Z', sprint:true, sprintQuali:'2026-05-09T08:30:00Z'}, // sam 14h CEST
-  {id:'mgp_r06',sport:'motogp',round:6, name:"Catalogne",         circuit:'Circuit de Barcelone',      date:'2026-05-17', quali:'2026-05-16T12:00:00Z', sprint:true, sprintQuali:'2026-05-16T08:30:00Z'}, // sam 14h CEST
-  {id:'mgp_r07',sport:'motogp',round:7, name:"Italie",            circuit:'Mugello',                   date:'2026-05-31', quali:'2026-05-30T13:00:00Z', sprint:true, sprintQuali:'2026-05-30T08:30:00Z'}, // sam 15h CEST
-  {id:'mgp_r08',sport:'motogp',round:8, name:"Hongrie",           circuit:'Balaton Park Circuit',      date:'2026-06-07', quali:'2026-06-06T12:00:00Z', sprint:true, sprintQuali:'2026-06-06T08:30:00Z'}, // sam 14h CEST
-  {id:'mgp_r09',sport:'motogp',round:9, name:"République Tchèque",circuit:'Automotodrom Brno',         date:'2026-06-21', quali:'2026-06-20T12:00:00Z', sprint:true, sprintQuali:'2026-06-20T08:30:00Z'}, // sam 14h CEST
-  {id:'mgp_r10',sport:'motogp',round:10,name:"Pays-Bas",          circuit:'TT Circuit Assen',          date:'2026-06-28', quali:'2026-06-27T12:00:00Z', sprint:true, sprintQuali:'2026-06-27T08:30:00Z'}, // sam 14h CEST
-  {id:'mgp_r11',sport:'motogp',round:11,name:"Allemagne",         circuit:'Sachsenring',               date:'2026-07-12', quali:'2026-07-11T12:00:00Z', sprint:true, sprintQuali:'2026-07-11T08:30:00Z'}, // sam 14h CEST
-  {id:'mgp_r12',sport:'motogp',round:12,name:"Grande-Bretagne",   circuit:'Silverstone',               date:'2026-08-09', quali:'2026-08-08T13:00:00Z', sprint:true, sprintQuali:'2026-08-08T09:30:00Z'}, // sam 14h BST
-  {id:'mgp_r13',sport:'motogp',round:13,name:"Aragon",            circuit:'MotorLand Aragón',          date:'2026-08-30', quali:'2026-08-29T12:00:00Z', sprint:true, sprintQuali:'2026-08-29T08:30:00Z'}, // sam 14h CEST
-  {id:'mgp_r14',sport:'motogp',round:14,name:"Saint-Marin",       circuit:'Misano World Circuit',      date:'2026-09-13', quali:'2026-09-12T12:00:00Z', sprint:true, sprintQuali:'2026-09-12T08:30:00Z'}, // sam 14h CEST
-  {id:'mgp_r15',sport:'motogp',round:15,name:"Autriche",          circuit:'Red Bull Ring',             date:'2026-09-20', quali:'2026-09-19T12:00:00Z', sprint:true, sprintQuali:'2026-09-19T08:30:00Z'}, // sam 14h CEST
-  {id:'mgp_r16',sport:'motogp',round:16,name:"Japon",             circuit:'Twin Ring Motegi',          date:'2026-10-04', quali:'2026-10-03T05:00:00Z', sprint:true, sprintQuali:'2026-10-03T01:30:00Z'}, // sam 14h JST
-  {id:'mgp_r17',sport:'motogp',round:17,name:"Indonésie",         circuit:'Pertamina Mandalika',       date:'2026-10-11', quali:'2026-10-10T06:00:00Z', sprint:true, sprintQuali:'2026-10-10T02:30:00Z'}, // sam 14h WITA
-  {id:'mgp_r18',sport:'motogp',round:18,name:"Australie",         circuit:'Phillip Island',            date:'2026-10-25', quali:'2026-10-24T03:00:00Z', sprint:true, sprintQuali:'2026-10-24T00:30:00Z'}, // sam 14h AEDT
-  {id:'mgp_r19',sport:'motogp',round:19,name:"Malaisie",          circuit:'Sepang International',      date:'2026-11-01', quali:'2026-10-31T06:00:00Z', sprint:true, sprintQuali:'2026-10-31T02:30:00Z'}, // sam 14h MYT
-  {id:'mgp_r20',sport:'motogp',round:20,name:"Portugal",          circuit:'Algarve International',     date:'2026-11-15', quali:'2026-11-14T13:00:00Z', sprint:true, sprintQuali:'2026-11-14T09:30:00Z'}, // sam 14h WET (hiver)
-  {id:'mgp_r21',sport:'motogp',round:21,name:"Valence",           circuit:'Circuit Ricardo Tormo',     date:'2026-11-22', quali:'2026-11-21T13:00:00Z', sprint:true, sprintQuali:'2026-11-21T09:30:00Z'}, // sam 14h CET
+  {id:'mgp_r00',sport:'motogp',round:1,name:"Thaïlande",circuit:'Chang International Circuit',date:'2026-03-01',quali:'2026-02-28T08:00:00Z',sprint:true,sprintQuali:'2026-02-28T03:50:00Z'},
+  {id:'mgp_r01',sport:'motogp',round:2,name:"Brésil",circuit:'Autódromo de Goiânia',date:'2026-03-22',quali:'2026-03-21T18:00:00Z',sprint:true,sprintQuali:'2026-03-21T13:50:00Z'},
+  {id:'mgp_r02',sport:'motogp',round:3,name:"Amériques",circuit:'Circuit of the Americas',date:'2026-03-29',quali:'2026-03-28T20:00:00Z',sprint:true,sprintQuali:'2026-03-28T15:50:00Z'},
+  {id:'mgp_r04',sport:'motogp',round:4,name:"Espagne",circuit:'Circuito de Jerez',date:'2026-04-26',quali:'2026-04-25T13:00:00Z',sprint:true,sprintQuali:'2026-04-25T08:50:00Z'},
+  {id:'mgp_r05',sport:'motogp',round:5,name:"France",circuit:'Bugatti Circuit — Le Mans',date:'2026-05-10',quali:'2026-05-09T13:00:00Z',sprint:true,sprintQuali:'2026-05-09T08:50:00Z'},
+  {id:'mgp_r06',sport:'motogp',round:6,name:"Catalogne",circuit:'Circuit de Barcelone',date:'2026-05-17',quali:'2026-05-16T13:00:00Z',sprint:true,sprintQuali:'2026-05-16T08:50:00Z'},
+  {id:'mgp_r07',sport:'motogp',round:7,name:"Italie",circuit:'Mugello',date:'2026-05-31',quali:'2026-05-30T13:00:00Z',sprint:true,sprintQuali:'2026-05-30T08:50:00Z'},
+  {id:'mgp_r08',sport:'motogp',round:8,name:"Hongrie",circuit:'Balaton Park Circuit',date:'2026-06-07',quali:'2026-06-06T13:00:00Z',sprint:true,sprintQuali:'2026-06-06T08:50:00Z'},
+  {id:'mgp_r09',sport:'motogp',round:9,name:"République Tchèque",circuit:'Automotodrom Brno',date:'2026-06-21',quali:'2026-06-20T13:00:00Z',sprint:true,sprintQuali:'2026-06-20T08:50:00Z'},
+  {id:'mgp_r10',sport:'motogp',round:10,name:"Pays-Bas",circuit:'TT Circuit Assen',date:'2026-06-28',quali:'2026-06-27T13:00:00Z',sprint:true,sprintQuali:'2026-06-27T08:50:00Z'},
+  {id:'mgp_r11',sport:'motogp',round:11,name:"Allemagne",circuit:'Sachsenring',date:'2026-07-12',quali:'2026-07-11T13:00:00Z',sprint:true,sprintQuali:'2026-07-11T08:50:00Z'},
+  {id:'mgp_r12',sport:'motogp',round:12,name:"Grande-Bretagne",circuit:'Silverstone',date:'2026-08-09',quali:'2026-08-08T13:00:00Z',sprint:true,sprintQuali:'2026-08-08T08:50:00Z'},
+  {id:'mgp_r13',sport:'motogp',round:13,name:"Aragon",circuit:'MotorLand Aragón',date:'2026-08-30',quali:'2026-08-29T13:00:00Z',sprint:true,sprintQuali:'2026-08-29T08:50:00Z'},
+  {id:'mgp_r14',sport:'motogp',round:14,name:"Saint-Marin",circuit:'Misano World Circuit',date:'2026-09-13',quali:'2026-09-12T13:00:00Z',sprint:true,sprintQuali:'2026-09-12T08:50:00Z'},
+  {id:'mgp_r15',sport:'motogp',round:15,name:"Autriche",circuit:'Red Bull Ring',date:'2026-09-20',quali:'2026-09-19T13:00:00Z',sprint:true,sprintQuali:'2026-09-19T08:50:00Z'},
+  {id:'mgp_r16',sport:'motogp',round:16,name:"Japon",circuit:'Twin Ring Motegi',date:'2026-10-04',quali:'2026-10-03T06:00:00Z',sprint:true,sprintQuali:'2026-10-03T01:50:00Z'},
+  {id:'mgp_r17',sport:'motogp',round:17,name:"Indonésie",circuit:'Pertamina Mandalika',date:'2026-10-11',quali:'2026-10-10T07:00:00Z',sprint:true,sprintQuali:'2026-10-10T02:50:00Z'},
+  {id:'mgp_r18',sport:'motogp',round:18,name:"Australie",circuit:'Phillip Island',date:'2026-10-25',quali:'2026-10-24T04:00:00Z',sprint:true,sprintQuali:'2026-10-23T23:50:00Z'},
+  {id:'mgp_r19',sport:'motogp',round:19,name:"Malaisie",circuit:'Sepang International',date:'2026-11-01',quali:'2026-10-31T08:00:00Z',sprint:true,sprintQuali:'2026-10-31T03:50:00Z'},
+  {id:'mgp_r03',sport:'motogp',round:20,name:"Qatar",circuit:'Losail International',date:'2026-11-08',quali:'2026-11-07T17:00:00Z',sprint:true,sprintQuali:'2026-11-07T12:40:00Z'},
+  {id:'mgp_r20',sport:'motogp',round:21,name:"Portugal",circuit:'Algarve International',date:'2026-11-22',quali:'2026-11-21T15:00:00Z',sprint:true,sprintQuali:'2026-11-21T10:50:00Z'},
+  {id:'mgp_r21',sport:'motogp',round:22,name:"Valence",circuit:'Circuit Ricardo Tormo',date:'2026-11-29',quali:'2026-11-28T14:00:00Z',sprint:true,sprintQuali:'2026-11-28T09:50:00Z'},
 ];
 
 const ALL_RACES = [...F1_RACES, ...MOTOGP_RACES];
 
 // ===== DEADLINE HELPERS =====
-// sprintQuali = début des Qualifications Sprint (vendredi) → deadline paris Sprint
-// quali       = début des Qualifications GP (samedi)       → deadline paris Course
+// F1     : sprintQuali = début Sprint Qualifying (vendredi) · quali = début Qualifications GP (samedi)
+// MotoGP : sprintQuali = début Q1 (samedi matin)            · quali = début course Sprint (samedi après-midi)
 function isBettingClosed(race) {
   // Overall modal closes at GP qualifying — sprint section locks separately at sprintQuali
   return new Date() >= new Date(race.quali);
@@ -4795,7 +4802,7 @@ const BADGE_DEFS = [
       return b&&b.p1===res.p1&&res.p1!==res.pole;
     }) },
   { id:'night_race',     icon:'🌙', name:'Renard de Nuit',  desc:'???',                                        rarity:'rare',      cat:'secret', secret:true,
-    check:(uid,s)=>['f1_r22','f1_r18','f1_r05','mgp_r03'].some(rid=>s.bets[uid]?.[rid]) },
+    check:(uid,s)=>['f1_r22','f1_r18','f1_r23','mgp_r03'].some(rid=>s.bets[uid]?.[rid]) },
   { id:'zero_miss',      icon:'🎰', name:'Sans Faute',      desc:'???',                                        rarity:'legendary', cat:'secret', secret:true,
     check:(uid,s)=>{
       const done=(window.ALL_RACES||[]).filter(r=>s.results[r.id]?.p1&&s.bets[uid]?.[r.id]);
